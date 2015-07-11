@@ -22,6 +22,11 @@ public class DetailActivity extends AppCompatActivity {
         ButterKnife.inject(this);
 
         setSupportActionBar(mToolbar);
+
+        // Add up button that when clicked, goes back to home page
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
 
