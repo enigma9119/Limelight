@@ -1,6 +1,7 @@
 package com.centerstage.limelight;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import butterknife.InjectView;
 
 /**
  * Created by Smitesh on 7/8/2015.
+ * Adapter to populate the grid view on the home page.
  */
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
@@ -46,18 +48,27 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Movie movie = mMovies.get(position);
+        final Movie movie = mMovies.get(position);
         Context context = holder.mMoviePoster.getContext();
 
         // Purpose of configuration data is to load common elements that don't change frequently separately
         // to keep the actual API responses as light as possible
-        String complete_poster_path = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;  // Todo: try size 2 and 3
-        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, movie.original_title, PLACEHOLDER_TEXT_SIZE, Color.BLACK,  // Todo: title vs original_title
+        String complete_poster_path = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;
+        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, movie.original_title, PLACEHOLDER_TEXT_SIZE, Color.BLACK,
                 holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
 
         Picasso.with(context).load(complete_poster_path)
                 .placeholder(placeholderText)
                 .into(holder.mMoviePoster);
+
+        holder.mMoviePoster.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                intent.putExtra(Intent.EXTRA_TEXT, movie.id);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -68,7 +79,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             return 0;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         @InjectView(R.id.movie_poster)
         ImageView mMoviePoster;
@@ -76,11 +87,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.inject(this, itemView);
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 }

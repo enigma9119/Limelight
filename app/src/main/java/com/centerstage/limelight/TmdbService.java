@@ -9,6 +9,7 @@ import com.uwetrottmann.tmdb.entities.MovieResultsPage;
 
 /**
  * Created by Smitesh on 7/8/2015.
+ * Used to make all the actual network requests to Tmdb.
  */
 public class TmdbService {
 

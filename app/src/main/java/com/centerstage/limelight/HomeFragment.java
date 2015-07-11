@@ -83,10 +83,10 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    private class FetchMoviesTask extends AsyncTask<String, Void, MovieResultsPage> {
+    private class FetchMoviesTask extends AsyncTask<Void, Void, MovieResultsPage> {
 
         @Override
-        protected MovieResultsPage doInBackground(String... params) {
+        protected MovieResultsPage doInBackground(Void... params) {
             MovieResultsPage resultsPage = null;
 
             switch(mPage) {
@@ -108,10 +108,10 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private class FetchConfigurationTask extends AsyncTask<String, Void, Configuration> {
+    private class FetchConfigurationTask extends AsyncTask<Void, Void, Configuration> {
 
         @Override
-        protected Configuration doInBackground(String... params) {
+        protected Configuration doInBackground(Void... params) {
             return MainActivity.sTmdbService.getConfiguration();
         }
 

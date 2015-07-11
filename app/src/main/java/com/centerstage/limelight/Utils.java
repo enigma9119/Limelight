@@ -10,6 +10,7 @@ import android.text.TextPaint;
 
 /**
  * Created by Smitesh on 7/8/2015.
+ * General Utilities.
  */
 public class Utils {
 
