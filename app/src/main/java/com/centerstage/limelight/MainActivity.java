@@ -17,12 +17,14 @@ import butterknife.InjectView;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final TmdbService sTmdbService = new TmdbService();
+
     @InjectView(R.id.tool_bar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
     @InjectView(R.id.viewpager)
-    ViewPager viewPager;
+    ViewPager mViewPager;
     @InjectView(R.id.sliding_tabs)
-    TabLayout tabLayout;
+    TabLayout mTabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +32,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
-        viewPager.setAdapter(new MoviesPagerAdapter(getSupportFragmentManager()));
-        tabLayout.setupWithViewPager(viewPager);
+        mViewPager.setAdapter(new MoviesPagerAdapter(getSupportFragmentManager()));
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 
 
