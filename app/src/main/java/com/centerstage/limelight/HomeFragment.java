@@ -62,7 +62,11 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         // Use a grid layout manager
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        if (getActivity().getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        } else {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        }
 
         // Specify an adapter
         mMovieAdapter = new MovieAdapter();
