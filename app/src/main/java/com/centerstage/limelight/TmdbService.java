@@ -30,7 +30,11 @@ public class TmdbService {
     }
 
     public MovieResultsPage getPopular(int pageNumber) {
-        return getManager().moviesService().popular(null, null);
+        return getManager().moviesService().popular(pageNumber, null);
+    }
+
+    public MovieResultsPage getTopRated(int pageNumber) {
+        return getManager().moviesService().topRated(pageNumber, null);
     }
 
     public MovieResultsPage getNowPlaying(int pageNumber) {

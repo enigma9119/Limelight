@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="purple_theme">#8d39b5</color>
-    <color name="material_purple_500">#9C27B0</color>
-    <color name="material_purple_700">#7B1FA2</color>
+    <color name="material_deep_purple_100">#D1C4E9</color>
+    <color name="material_deep_purple_500">#673AB7</color>
+    <color name="material_deep_purple_700">#512DA8</color>
     <color name="material_amber_A200">#FFD740</color>
-    <color name="material_orange_A200">#FFAB40</color>
 
 </resources>

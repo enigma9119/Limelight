@@ -2,10 +2,11 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/material_purple_500</item>
-        <item name="colorPrimaryDark">@color/material_purple_700</item>
+        <item name="colorPrimary">@color/material_deep_purple_500</item>
+        <item name="colorPrimaryDark">@color/material_deep_purple_700</item>
         <item name="colorAccent">@color/material_amber_A200</item>
         <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@color/material_deep_purple_100</item>
     </style>
 
 </resources>

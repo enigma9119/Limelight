@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 
 import java.util.List;
@@ -26,13 +25,8 @@ import butterknife.InjectView;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     private List<Movie> mMovies;
-    private Configuration mConfig;
 
     public static final Float PLACEHOLDER_TEXT_SIZE = 40f;
-
-    public void setConfiguration(Configuration configuration) {
-        mConfig = configuration;
-    }
 
     public void updateAdapter(List<Movie> movies) {
         mMovies = movies;
@@ -53,8 +47,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
         // Purpose of configuration data is to load common elements that don't change frequently separately
         // to keep the actual API responses as light as possible
-        String complete_poster_path = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;
-        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, movie.original_title, PLACEHOLDER_TEXT_SIZE, Color.BLACK,
+        String complete_poster_path = MainActivity.sConfiguration.images.base_url +
+                MainActivity.sConfiguration.images.poster_sizes.get(3) +
+                movie.poster_path;
+        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, movie.original_title,
+                PLACEHOLDER_TEXT_SIZE, Color.BLACK,
                 holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
 
         Picasso.with(context).load(complete_poster_path)
