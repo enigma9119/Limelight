@@ -3,9 +3,11 @@
     <string name="app_name">Limelight</string>
     <string name="title_activity_detail">DetailActivity</string>
 
+    <string name="movie_poster_description">Movie poster</string>
+    <string name="movie_backdrop_description">Backdrop image for the movie</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_sort">Sort By</string>
-    <string name="movie_poster_description">Movie poster</string>
     <string name="sort_most_popular">Most Popular</string>
     <string name="sort_highest_rated">Highest Rated</string>
 
