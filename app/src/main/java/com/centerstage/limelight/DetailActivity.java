@@ -1,6 +1,8 @@
 package com.centerstage.limelight;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,6 +49,16 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
         // Add up button that when clicked, goes back to home page
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        // Fetch the movie poster extra from the intent.
+        // This is done so that the poster image doesn't need to be downloaded again. Will be
+        // useful when using shared element scene transitions.
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+            byte[] byteArray = intent.getByteArrayExtra(Intent.EXTRA_STREAM);
+            Bitmap posterImageBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            mMoviePoster.setImageBitmap(posterImageBitmap);
         }
     }
 
@@ -100,13 +112,6 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
                     }
                 });
-
-        // Load the poster image
-        String complete_poster_path = MainActivity.sConfiguration.images.base_url +
-                MainActivity.sConfiguration.images.poster_sizes.get(3) +
-                movie.poster_path;
-
-        Picasso.with(this).load(complete_poster_path).into(mMoviePoster);
 
         // Set the title in the tool bar
         mCollapsingToolbar.setTitle(movie.original_title);

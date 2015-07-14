@@ -2,6 +2,7 @@ package com.centerstage.limelight;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.uwetrottmann.tmdb.entities.Movie;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -41,9 +43,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         final Movie movie = mMovies.get(position);
-        Context context = holder.mMoviePoster.getContext();
+        final Context context = holder.mMoviePoster.getContext();
 
         // Purpose of configuration data is to load common elements that don't change frequently separately
         // to keep the actual API responses as light as possible
@@ -63,6 +65,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), DetailActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, movie.id);
+
+                // Convert ImageView (movie poster) to byte array
+                Bitmap posterImageBitmap = ((BitmapDrawable)holder.mMoviePoster.getDrawable()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                posterImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                // Pass this byte array into the intent
+                intent.putExtra(Intent.EXTRA_STREAM, byteArray);
+
                 v.getContext().startActivity(intent);
             }
         });
