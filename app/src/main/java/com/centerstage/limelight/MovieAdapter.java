@@ -63,19 +63,24 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.mMoviePoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT, movie.id);
+                // Only handle the click if movie poster has finished loading
+                if (holder.mMoviePoster.getDrawable() != null) {
+                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                    intent.putExtra(Intent.EXTRA_TEXT, movie.id);
 
-                // Convert ImageView (movie poster) to byte array
-                Bitmap posterImageBitmap = ((BitmapDrawable)holder.mMoviePoster.getDrawable()).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                posterImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
+                    if (movie.poster_path != null) {
+                        // Convert ImageView (movie poster) to byte array
+                        Bitmap posterImageBitmap = ((BitmapDrawable) holder.mMoviePoster.getDrawable()).getBitmap();
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        posterImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                        byte[] byteArray = stream.toByteArray();
 
-                // Pass this byte array into the intent
-                intent.putExtra(Intent.EXTRA_STREAM, byteArray);
+                        // Pass this byte array into the intent
+                        intent.putExtra(Intent.EXTRA_STREAM, byteArray);
+                    }
 
-                v.getContext().startActivity(intent);
+                    v.getContext().startActivity(intent);
+                }
             }
         });
     }
