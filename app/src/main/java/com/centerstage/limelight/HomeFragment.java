@@ -59,25 +59,33 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ButterKnife.inject(this, rootView);
+        View rootView;
 
-        // Improve performance since changes in adapter content won't change size of RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        if (Utils.isOnline(getActivity())) {
+            rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            ButterKnife.inject(this, rootView);
 
-        // Use a grid layout manager
-        if (getActivity().getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            // Improve performance since changes in adapter content won't change size of RecyclerView
+            mRecyclerView.setHasFixedSize(true);
+
+            // Use a grid layout manager
+            if (getActivity().getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            } else {
+                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+            }
+
+            // Specify an adapter
+            mMovieAdapter = new MovieAdapter();
+            mRecyclerView.setAdapter(mMovieAdapter);
+
+            // Get the list of movies
+            new FetchMoviesTask().execute();
+
         } else {
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+            // If there is no internet connection, load a different layout
+            rootView = inflater.inflate(R.layout.no_network, container, false);
         }
-
-        // Specify an adapter
-        mMovieAdapter = new MovieAdapter();
-        mRecyclerView.setAdapter(mMovieAdapter);
-
-        // Get the list of movies
-        new FetchMoviesTask().execute();
 
         return rootView;
     }

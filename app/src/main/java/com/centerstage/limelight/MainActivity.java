@@ -44,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
 
         // Get the common configuration data from Tmdb
-        new FetchConfigurationTask().execute();
+        if (Utils.isOnline(this)) {
+            new FetchConfigurationTask().execute();
+        }
     }
 
 

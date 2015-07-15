@@ -36,31 +36,36 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
-        ButterKnife.inject(this);
+        if (Utils.isOnline(this)) {
+            setContentView(R.layout.activity_detail);
+            ButterKnife.inject(this);
 
-        setSupportActionBar(mToolbar);
+            setSupportActionBar(mToolbar);
 
-        // Make status bar color transparent
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(android.R.color.transparent));
-        }
+            // Make status bar color transparent
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(getResources().getColor(android.R.color.transparent));
+            }
 
-        // Add up button that when clicked, goes back to home page
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+            // Add up button that when clicked, goes back to home page
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
 
-        // Fetch the movie poster extra from the intent.
-        // This is done so that the poster image doesn't need to be downloaded again. Will be
-        // useful when using shared element scene transitions.
-        Intent intent = getIntent();
-        if(intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
-            byte[] byteArray = intent.getByteArrayExtra(Intent.EXTRA_STREAM);
-            Bitmap posterImageBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-            mMoviePoster.setImageBitmap(posterImageBitmap);
+            // Fetch the movie poster extra from the intent.
+            // This is done so that the poster image doesn't need to be downloaded again. Will be
+            // useful when using shared element scene transitions.
+            Intent intent = getIntent();
+            if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+                byte[] byteArray = intent.getByteArrayExtra(Intent.EXTRA_STREAM);
+                Bitmap posterImageBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                mMoviePoster.setImageBitmap(posterImageBitmap);
+            } else {
+                mMoviePoster.setImageDrawable(getResources().getDrawable(R.drawable.movie_poster_placeholder));
+            }
+
         } else {
-            mMoviePoster.setImageDrawable(getResources().getDrawable(R.drawable.movie_poster_placeholder));
+            setContentView(R.layout.no_network);
         }
     }
 

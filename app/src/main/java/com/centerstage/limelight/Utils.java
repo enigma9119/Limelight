@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -14,7 +16,7 @@ import android.text.TextPaint;
  */
 public class Utils {
 
-    // Converts text to a bitmap drawable that can placed in an imageView
+    // Converts text to a bitmap drawable that can placed in an ImageView
     public static BitmapDrawable textAsBitmapDrawable(Context context, String text, float textSize, int textColor, int imageWidth, int imageHeight) {
         TextPaint paint = new TextPaint();
         paint.setTextSize(textSize);
@@ -36,5 +38,12 @@ public class Utils {
         canvas.restore();
 
         return new BitmapDrawable(context.getResources(), image);
+    }
+
+    // Checks whether an internet connection is available
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 }
