@@ -109,8 +109,12 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                         Palette.from(backdropImageBitmap).generate(new Palette.PaletteAsyncListener() {
                             @Override
                             public void onGenerated(Palette palette) {
-                                mCollapsingToolbar.setContentScrimColor(palette.getMutedColor(R.attr.colorPrimary));
-                                mCollapsingToolbar.setStatusBarScrimColor(palette.getDarkMutedColor(R.attr.colorPrimaryDark));
+                                mCollapsingToolbar.setContentScrimColor(palette.getVibrantColor(R.attr.colorPrimary));
+                                mCollapsingToolbar.setStatusBarScrimColor(palette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+
+                                // Send the palette to the movie fragment
+                                MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
+                                fragment.onPaletteGenerated(palette);
                             }
                         });
                     }

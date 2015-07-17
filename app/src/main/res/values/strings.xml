@@ -5,11 +5,20 @@
 
     <string name="movie_poster_description">Movie poster</string>
     <string name="movie_backdrop_description">Backdrop image for the movie</string>
+    <string name="star_icon_description">Star Icon for Rating</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_sort">Sort By</string>
     <string name="sort_most_popular">Most Popular</string>
     <string name="sort_highest_rated">Highest Rated</string>
     <string name="no_network">No Internet Connection!</string>
+
+    <string name="maximum_user_rating">/ 10</string>
+    <string name="ratings_text">ratings</string>
+    <string name="synopsis_text">Synopsis</string>
+    <string name="details_text">Details</string>
+    <string name="runtime_text">Runtime</string>
+    <string name="language_text">Language</string>
+    <string name="budget_text">Budget</string>
 
 </resources>
