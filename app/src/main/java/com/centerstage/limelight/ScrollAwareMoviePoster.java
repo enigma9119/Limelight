@@ -6,6 +6,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
@@ -17,10 +18,18 @@ import android.view.View;
 public class ScrollAwareMoviePoster extends CoordinatorLayout.Behavior<View> {
 
     private boolean mIsAnimatingOut;
+    private WindowInsetsCompat mLastInsets;
+    private Rect mTmpRect;
     private FastOutSlowInInterpolator fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
 
     public ScrollAwareMoviePoster(Context context, AttributeSet attrs) {
         super();
+    }
+
+    @Override
+    public WindowInsetsCompat onApplyWindowInsets(CoordinatorLayout coordinatorLayout, View child, WindowInsetsCompat insets) {
+        mLastInsets = insets;
+        return super.onApplyWindowInsets(coordinatorLayout, child, insets);
     }
 
     @Override
@@ -33,11 +42,11 @@ public class ScrollAwareMoviePoster extends CoordinatorLayout.Behavior<View> {
         if (dependency instanceof AppBarLayout) {
             AppBarLayout appBarLayout = (AppBarLayout) dependency;
 
-            Rect tmpRect = new Rect();
-            tmpRect.set(0, 0, dependency.getWidth(), dependency.getHeight());
-            parent.offsetDescendantRectToMyCoords(dependency, tmpRect);
+            if (mTmpRect == null) mTmpRect = new Rect();
+            mTmpRect.set(0, 0, dependency.getWidth(), dependency.getHeight());
+            parent.offsetDescendantRectToMyCoords(dependency, mTmpRect);
 
-            if (tmpRect.bottom <= getMinimumHeightForVisibleOverlappingContent(appBarLayout)) {
+            if (mTmpRect.bottom <= getMinimumHeightForVisibleOverlappingContent(appBarLayout)) {
                 if(!mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
                     animateOut(child);
                 }
@@ -50,12 +59,13 @@ public class ScrollAwareMoviePoster extends CoordinatorLayout.Behavior<View> {
     }
 
     private int getMinimumHeightForVisibleOverlappingContent(AppBarLayout appBarLayout) {
+        int topInset = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
         int minHeight = ViewCompat.getMinimumHeight(appBarLayout);
         if(minHeight != 0) {
-            return minHeight*2;
+            return minHeight*2 + topInset;
         } else {
             int childCount = appBarLayout.getChildCount();
-            return childCount >= 1? ViewCompat.getMinimumHeight(appBarLayout.getChildAt(childCount - 1)) * 2 : 0;
+            return childCount >= 1? ViewCompat.getMinimumHeight(appBarLayout.getChildAt(childCount - 1)) * 2 + topInset : 0;
         }
     }
 
