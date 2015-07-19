@@ -6,7 +6,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +30,8 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     Toolbar mToolbar;
     @InjectView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
+    @InjectView(R.id.app_bar)
+    AppBarLayout mAppBar;
     @InjectView(R.id.movie_backdrop)
     ImageView mBackdropImage;
     @InjectView(R.id.movie_poster)
@@ -41,6 +45,17 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
             ButterKnife.inject(this);
 
             setSupportActionBar(mToolbar);
+
+            // Make backdrop image height = (1/2.6) of parent view height for portrait orientation
+            // and (2/3) of parent view height for landscape orientation.
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mAppBar.getLayoutParams();
+            float imageHeight;
+            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+                imageHeight = getResources().getDisplayMetrics().heightPixels / (float) 2.6;
+            } else {
+                imageHeight = getResources().getDisplayMetrics().heightPixels * (float) (2.0 / 3.0);
+            }
+            lp.height = (int) imageHeight;
 
             // Make status bar color transparent
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
