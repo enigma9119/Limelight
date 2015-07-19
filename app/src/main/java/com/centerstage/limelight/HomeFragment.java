@@ -11,7 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.MovieResultsPage;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -35,6 +38,7 @@ public class HomeFragment extends Fragment {
 
     private int mPage;
     private MovieAdapter mMovieAdapter;
+    private List<Movie> mMovies;
 
     @InjectView(R.id.recyclerview)
     RecyclerView mRecyclerView;
@@ -54,6 +58,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
+        setRetainInstance(true);
     }
 
     @Override
@@ -79,8 +84,16 @@ public class HomeFragment extends Fragment {
             mMovieAdapter = new MovieAdapter();
             mRecyclerView.setAdapter(mMovieAdapter);
 
-            // Get the list of movies
-            new FetchMoviesTask().execute();
+            // Get the list of movies.
+            // During configuration changes, the fragment will retain the mMovies object due to
+            // setRetainInstance(true). If this data exists, then don't make another network call.
+            // This also maintains the user's position in the RecyclerView.
+            if (savedInstanceState != null && mMovies != null) {
+                mMovieAdapter.updateAdapter(mMovies);
+                mMovieAdapter.notifyDataSetChanged();
+            } else {
+                new FetchMoviesTask().execute();
+            }
 
         } else {
             // If there is no internet connection, load a different layout
@@ -119,7 +132,8 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(MovieResultsPage movieResultsPage) {
             if (movieResultsPage != null && !movieResultsPage.results.isEmpty()) {
-                mMovieAdapter.updateAdapter(movieResultsPage.results);
+                mMovies = movieResultsPage.results;
+                mMovieAdapter.updateAdapter(mMovies);
                 mMovieAdapter.notifyDataSetChanged();
             }
         }
