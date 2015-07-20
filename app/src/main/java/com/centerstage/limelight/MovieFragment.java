@@ -88,17 +88,32 @@ public class MovieFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Intent intent = getActivity().getIntent();
+
+        if (savedInstanceState != null) {
+            // Use retained movie object to build UI
+            buildMovieUI(mMovie);
+
+        } else if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            int tmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
+            new FetchMovieTask().execute(tmdbId);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         ButterKnife.inject(this, rootView);
-        Intent intent = getActivity().getIntent();
-
-        if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-            int tmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
-            FetchMovieTask movieTask = new FetchMovieTask();
-            movieTask.execute(tmdbId);
-        }
 
         return rootView;
     }
@@ -110,6 +125,7 @@ public class MovieFragment extends Fragment {
 
         Drawable starDrawable = getResources().getDrawable(R.drawable.ic_star_black_36dp);
 
+        // User rating colors
         if (vibrantSwatch != null) {
             mUserRatingCardView.setCardBackgroundColor(palette.getVibrantColor(R.attr.colorPrimary));
             mUserRating.setTextColor(vibrantSwatch.getBodyTextColor());
@@ -129,6 +145,66 @@ public class MovieFragment extends Fragment {
         }
     }
 
+    private void buildMovieUI(Movie movie) {
+        // Use a callback to handle using certain elements of the fetched data in activity
+        mCallback.onMovieDataFetched(movie);
+
+        // Set the title and tagline
+        mMovieTitle.setText(movie.original_title);
+        if (!movie.tagline.isEmpty()) {
+            mTagline.setText(movie.tagline);
+        } else {
+            mTagline.setVisibility(View.GONE);
+        }
+
+        // Set the release date
+        String formattedDate = DateUtils.formatDateTime(getActivity(), movie.release_date.getTime(), 0);
+        mReleaseDate.setText(formattedDate);
+
+        // Set the genres and runtime
+        if (!movie.genres.isEmpty() && movie.genres.get(0) != null && !movie.genres.get(0).name.isEmpty()) {
+            if (movie.genres.size() >= 2 && movie.genres.get(1) != null && !movie.genres.get(1).name.isEmpty()) {
+                mGenres.setText(String.format("%s | %s", movie.genres.get(0).name, movie.genres.get(1).name));
+            } else {
+                mGenres.setText(movie.genres.get(0).name);
+            }
+        }
+
+        if (movie.runtime != null && movie.runtime != 0) {
+            String runtimeText = String.format("%d minutes", movie.runtime);
+            mRuntime.setText(runtimeText);
+        }
+
+        // Set the user rating
+        if (movie.vote_average != 0) {
+            mUserRating.setText(movie.vote_average.toString());
+            if (movie.vote_count != null && movie.vote_count != 0) {
+                mUserRatingCount.setText(Integer.toString(movie.vote_count));
+            } else {
+                mUserRatingCount.setVisibility(View.GONE);
+                mRatingsText.setVisibility(View.GONE);
+            }
+        } else {
+            mUserRatingCardView.setVisibility(View.GONE);
+        }
+
+        mSynopsis.setText(movie.overview);
+
+        // Details card
+        if (!movie.spoken_languages.isEmpty() && movie.spoken_languages.get(0) != null) {
+            mLanguage.setText(movie.spoken_languages.get(0).name);
+        } else {
+            mLanguage.setText("-");
+        }
+
+        if (movie.budget != null && movie.budget != 0) {
+            String budgetText = String.format("$%d", movie.budget);
+            mBudget.setText(movie.budget != 0 ? budgetText : "N/A");
+        } else {
+            mBudget.setText("-");
+        }
+    }
+
 
     private class FetchMovieTask extends AsyncTask<Integer, Void, Movie> {
 
@@ -139,63 +215,8 @@ public class MovieFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie movie) {
-            // Use a callback to handle using certain elements of the fetched data in activity
-            mCallback.onMovieDataFetched(movie);
-
-            // Set the title and tagline
-            mMovieTitle.setText(movie.original_title);
-            if (!movie.tagline.isEmpty()) {
-                mTagline.setText(movie.tagline);
-            } else {
-                mTagline.setVisibility(View.GONE);
-            }
-
-            // Set the release date
-            String formattedDate = DateUtils.formatDateTime(getActivity(), movie.release_date.getTime(), 0);
-            mReleaseDate.setText(formattedDate);
-
-            // Set the genres and runtime
-            if (!movie.genres.isEmpty() && movie.genres.get(0) != null && !movie.genres.get(0).name.isEmpty()) {
-                if (movie.genres.size() >= 2 && movie.genres.get(1) != null && !movie.genres.get(1).name.isEmpty()) {
-                    mGenres.setText(String.format("%s | %s", movie.genres.get(0).name, movie.genres.get(1).name));
-                } else {
-                    mGenres.setText(movie.genres.get(0).name);
-                }
-            }
-
-            if (movie.runtime != null && movie.runtime != 0) {
-                String runtimeText = String.format("%d minutes", movie.runtime);
-                mRuntime.setText(runtimeText);
-            }
-
-            // Set the user rating
-            if (movie.vote_average != 0) {
-                mUserRating.setText(movie.vote_average.toString());
-                if (movie.vote_count != null && movie.vote_count != 0) {
-                    mUserRatingCount.setText(Integer.toString(movie.vote_count));
-                } else {
-                    mUserRatingCount.setVisibility(View.GONE);
-                    mRatingsText.setVisibility(View.GONE);
-                }
-            } else {
-                mUserRatingCardView.setVisibility(View.GONE);
-            }
-
-            mSynopsis.setText(movie.overview);
-
-            // Details card
-            if (!movie.spoken_languages.isEmpty() && movie.spoken_languages.get(0) != null) {
-                mLanguage.setText(movie.spoken_languages.get(0).name);
-            } else {
-                mLanguage.setText("-");
-            }
-
-            if (movie.budget != null && movie.budget != 0) {
-                String budgetText = String.format("$%d", movie.budget);
-                mBudget.setText(movie.budget != 0 ? budgetText : "N/A");
-            } else {
-                mBudget.setText("-");
-            }
+            mMovie = movie;
+            buildMovieUI(movie);
         }
     }
 }
