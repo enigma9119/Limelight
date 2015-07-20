@@ -129,7 +129,7 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
                                 // Send the palette to the movie fragment
                                 MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
-                                fragment.onPaletteGenerated(palette);
+                                if (fragment != null) fragment.onPaletteGenerated(palette);
                             }
                         });
                     }
