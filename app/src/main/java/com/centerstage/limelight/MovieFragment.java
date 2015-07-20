@@ -41,6 +41,13 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.release_date)
     TextView mReleaseDate;
 
+    @InjectView(R.id.genre_runtime_cardview)
+    CardView mGenreRuntimeCardView;
+    @InjectView(R.id.genres)
+    TextView mGenres;
+    @InjectView(R.id.runtime)
+    TextView mRuntime;
+
     @InjectView(R.id.star)
     ImageView mStar;
     @InjectView(R.id.user_rating_cardview)
@@ -56,8 +63,6 @@ public class MovieFragment extends Fragment {
 
     @InjectView(R.id.synopsis)
     TextView mSynopsis;
-    @InjectView(R.id.runtime)
-    TextView mRuntime;
     @InjectView(R.id.language)
     TextView mLanguage;
     @InjectView(R.id.budget)
@@ -101,10 +106,10 @@ public class MovieFragment extends Fragment {
     // Callback function to use when color palette has been generated using the backdrop image
     public void onPaletteGenerated(Palette palette) {
         Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
+        Palette.Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
 
         Drawable starDrawable = getResources().getDrawable(R.drawable.ic_star_black_36dp);
 
-        // User rating colors
         if (vibrantSwatch != null) {
             mUserRatingCardView.setCardBackgroundColor(palette.getVibrantColor(R.attr.colorPrimary));
             mUserRating.setTextColor(vibrantSwatch.getBodyTextColor());
@@ -115,6 +120,13 @@ public class MovieFragment extends Fragment {
             starDrawable.setColorFilter(vibrantSwatch.getBodyTextColor(), PorterDuff.Mode.SRC_IN);
         }
         mStar.setImageDrawable(starDrawable);
+
+        // Genres and runtime colors
+        if (darkVibrantSwatch != null) {
+            mGenreRuntimeCardView.setBackgroundColor(palette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+            mGenres.setTextColor(darkVibrantSwatch.getBodyTextColor());
+            mRuntime.setTextColor(darkVibrantSwatch.getBodyTextColor());
+        }
     }
 
 
@@ -132,11 +144,29 @@ public class MovieFragment extends Fragment {
 
             // Set the title and tagline
             mMovieTitle.setText(movie.original_title);
-            mTagline.setText(movie.tagline);
+            if (!movie.tagline.isEmpty()) {
+                mTagline.setText(movie.tagline);
+            } else {
+                mTagline.setVisibility(View.GONE);
+            }
 
             // Set the release date
             String formattedDate = DateUtils.formatDateTime(getActivity(), movie.release_date.getTime(), 0);
             mReleaseDate.setText(formattedDate);
+
+            // Set the genres and runtime
+            if (!movie.genres.isEmpty() && movie.genres.get(0) != null && !movie.genres.get(0).name.isEmpty()) {
+                if (movie.genres.size() >= 2 && movie.genres.get(1) != null && !movie.genres.get(1).name.isEmpty()) {
+                    mGenres.setText(String.format("%s | %s", movie.genres.get(0).name, movie.genres.get(1).name));
+                } else {
+                    mGenres.setText(movie.genres.get(0).name);
+                }
+            }
+
+            if (movie.runtime != null && movie.runtime != 0) {
+                String runtimeText = String.format("%d minutes", movie.runtime);
+                mRuntime.setText(runtimeText);
+            }
 
             // Set the user rating
             if (movie.vote_average != 0) {
@@ -154,13 +184,6 @@ public class MovieFragment extends Fragment {
             mSynopsis.setText(movie.overview);
 
             // Details card
-            if (movie.runtime != null && movie.runtime != 0) {
-                String runtimeText = String.format("%d minutes", movie.runtime);
-                mRuntime.setText(runtimeText);
-            } else {
-                mRuntime.setText("-");
-            }
-
             if (!movie.spoken_languages.isEmpty() && movie.spoken_languages.get(0) != null) {
                 mLanguage.setText(movie.spoken_languages.get(0).name);
             } else {
