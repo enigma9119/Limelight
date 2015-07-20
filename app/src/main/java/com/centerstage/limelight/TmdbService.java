@@ -13,7 +13,7 @@ import com.uwetrottmann.tmdb.entities.MovieResultsPage;
  */
 public class TmdbService {
 
-    protected static final String API_KEY = "2edea78f94e1d52b5f85909d030187d2";
+    protected static final String API_KEY = "";
 
     private final Tmdb manager = new Tmdb();
 
