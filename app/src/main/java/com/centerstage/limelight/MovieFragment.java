@@ -16,7 +16,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.centerstage.limelight.model.Genre;
+import com.centerstage.limelight.model.Language;
+import com.centerstage.limelight.model.LimelightMovie;
 import com.uwetrottmann.tmdb.entities.Movie;
+import com.uwetrottmann.tmdb.entities.SpokenLanguage;
+
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -27,10 +33,12 @@ import butterknife.InjectView;
  */
 public class MovieFragment extends Fragment {
 
+    private final String PARCELABLE_MOVIE_KEY = "parcelable_movie";
+
     OnMovieDataFetchedListener mCallback;
 
     public interface OnMovieDataFetchedListener {
-        void onMovieDataFetched(Movie movie);
+        void onMovieDataFetched(LimelightMovie movie);
     }
 
     @InjectView(R.id.movie_title)
@@ -68,7 +76,7 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.budget)
     TextView mBudget;
 
-    Movie mMovie;
+    LimelightMovie mMovie;
 
     public MovieFragment() {
     }
@@ -88,9 +96,9 @@ public class MovieFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(PARCELABLE_MOVIE_KEY, mMovie);
     }
 
     @Override
@@ -100,7 +108,8 @@ public class MovieFragment extends Fragment {
         Intent intent = getActivity().getIntent();
 
         if (savedInstanceState != null) {
-            // Use retained movie object to build UI
+            // Use saved movie object to build UI
+            mMovie = savedInstanceState.getParcelable(PARCELABLE_MOVIE_KEY);
             buildMovieUI(mMovie);
 
         } else if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -145,41 +154,42 @@ public class MovieFragment extends Fragment {
         }
     }
 
-    private void buildMovieUI(Movie movie) {
+    // Build the main UI for the detail screen
+    private void buildMovieUI(LimelightMovie movie) {
         // Use a callback to handle using certain elements of the fetched data in activity
         mCallback.onMovieDataFetched(movie);
 
         // Set the title and tagline
-        mMovieTitle.setText(movie.original_title);
-        if (!movie.tagline.isEmpty()) {
-            mTagline.setText(movie.tagline);
+        mMovieTitle.setText(movie.getMovieTitle());
+        if (movie.getTagline() != null && !movie.getTagline().isEmpty()) {
+            mTagline.setText(movie.getTagline());
         } else {
             mTagline.setVisibility(View.GONE);
         }
 
         // Set the release date
-        String formattedDate = DateUtils.formatDateTime(getActivity(), movie.release_date.getTime(), 0);
+        String formattedDate = DateUtils.formatDateTime(getActivity(), movie.getReleaseDate().getTime(), 0);
         mReleaseDate.setText(formattedDate);
 
         // Set the genres and runtime
-        if (!movie.genres.isEmpty() && movie.genres.get(0) != null && !movie.genres.get(0).name.isEmpty()) {
-            if (movie.genres.size() >= 2 && movie.genres.get(1) != null && !movie.genres.get(1).name.isEmpty()) {
-                mGenres.setText(String.format("%s | %s", movie.genres.get(0).name, movie.genres.get(1).name));
+        if (!movie.getGenres().isEmpty() && movie.getGenres().get(0) != null && !movie.getGenres().get(0).getName().isEmpty()) {
+                if (movie.getGenres().size() >= 2 && movie.getGenres().get(1) != null && !movie.getGenres().get(1).getName().isEmpty()) {
+                mGenres.setText(String.format("%s | %s", movie.getGenres().get(0).getName(), movie.getGenres().get(1).getName()));
             } else {
-                mGenres.setText(movie.genres.get(0).name);
+                mGenres.setText(movie.getGenres().get(0).getName());
             }
         }
 
-        if (movie.runtime != null && movie.runtime != 0) {
-            String runtimeText = String.format("%d minutes", movie.runtime);
+        if (movie.getRuntime() != null && movie.getRuntime() != 0) {
+            String runtimeText = String.format("%d minutes", movie.getRuntime());
             mRuntime.setText(runtimeText);
         }
 
         // Set the user rating
-        if (movie.vote_average != 0) {
-            mUserRating.setText(movie.vote_average.toString());
-            if (movie.vote_count != null && movie.vote_count != 0) {
-                mUserRatingCount.setText(Integer.toString(movie.vote_count));
+        if (movie.getUserRating() != null && movie.getUserRating() != 0) {
+            mUserRating.setText(movie.getUserRating().toString());
+            if (movie.getNumRatings() != null && movie.getNumRatings() != 0) {
+                mUserRatingCount.setText(Integer.toString(movie.getNumRatings()));
             } else {
                 mUserRatingCount.setVisibility(View.GONE);
                 mRatingsText.setVisibility(View.GONE);
@@ -188,21 +198,66 @@ public class MovieFragment extends Fragment {
             mUserRatingCardView.setVisibility(View.GONE);
         }
 
-        mSynopsis.setText(movie.overview);
+        mSynopsis.setText(movie.getSynopsis());
 
         // Details card
-        if (!movie.spoken_languages.isEmpty() && movie.spoken_languages.get(0) != null) {
-            mLanguage.setText(movie.spoken_languages.get(0).name);
+        if (!movie.getLanguages().isEmpty() && movie.getLanguages().get(0) != null) {
+            mLanguage.setText(movie.getLanguages().get(0).getName());
         } else {
             mLanguage.setText("-");
         }
 
-        if (movie.budget != null && movie.budget != 0) {
-            String budgetText = String.format("$%d", movie.budget);
-            mBudget.setText(movie.budget != 0 ? budgetText : "N/A");
+        if (movie.getBudget() != null && movie.getBudget() != 0) {
+            String budgetText = String.format("$%d", movie.getBudget());
+            mBudget.setText(budgetText);
         } else {
             mBudget.setText("-");
         }
+    }
+
+    // Initialize the parcelable Limelight movie object
+    void initLimelightMovie(Movie movie) {
+        mMovie = new LimelightMovie();
+        mMovie.setId(movie.id);
+        mMovie.setMovieTitle(movie.original_title);
+        mMovie.setTagline(movie.tagline);
+        mMovie.setReleaseDate(movie.release_date);
+
+        if (movie.genres != null) {
+            ArrayList<Genre> parcelableGenres = new ArrayList<>(movie.genres.size());
+
+            for (com.uwetrottmann.tmdb.entities.Genre genre : movie.genres) {
+                Genre parcelableGenre = new Genre();
+                parcelableGenre.setId(genre.id);
+                parcelableGenre.setName(genre.name);
+
+                parcelableGenres.add(parcelableGenre);
+            }
+
+            mMovie.setGenres(parcelableGenres);
+        }
+
+        mMovie.setRuntime(movie.runtime);
+        mMovie.setUserRating(movie.vote_average);
+        mMovie.setNumRatings(movie.vote_count);
+        mMovie.setSynopsis(movie.overview);
+
+        if (movie.spoken_languages != null) {
+            ArrayList<Language> languages = new ArrayList<>(movie.spoken_languages.size());
+
+            for (SpokenLanguage spokenLanguage : movie.spoken_languages) {
+                Language language = new Language();
+                language.setIso_639_1(spokenLanguage.iso_639_1);
+                language.setName(spokenLanguage.name);
+
+                languages.add(language);
+            }
+
+            mMovie.setLanguages(languages);
+        }
+
+        mMovie.setBudget(movie.budget);
+        mMovie.setBackdropPath(movie.backdrop_path);
     }
 
 
@@ -215,8 +270,8 @@ public class MovieFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie movie) {
-            mMovie = movie;
-            buildMovieUI(movie);
+            initLimelightMovie(movie);
+            buildMovieUI(mMovie);
         }
     }
 }

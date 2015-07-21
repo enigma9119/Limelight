@@ -16,9 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.centerstage.limelight.model.LimelightMovie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.uwetrottmann.tmdb.entities.Movie;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -108,11 +108,11 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     }
 
     @Override
-    public void onMovieDataFetched(Movie movie) {
+    public void onMovieDataFetched(LimelightMovie movie) {
         // Load the backdrop image
         String complete_backdrop_path = MainActivity.sConfiguration.images.base_url +
                 MainActivity.sConfiguration.images.backdrop_sizes.get(1) +
-                movie.backdrop_path;
+                movie.getBackdropPath();
 
         Picasso.with(this).load(complete_backdrop_path)
                 .error(R.drawable.backdrop_placeholder)
@@ -141,6 +141,6 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                 });
 
         // Set the title in the tool bar
-        mCollapsingToolbar.setTitle(movie.original_title);
+        mCollapsingToolbar.setTitle(movie.getMovieTitle());
     }
 }
