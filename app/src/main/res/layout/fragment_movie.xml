@@ -223,19 +223,11 @@
 
                 <TextView
                     android:text="@string/synopsis_text"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:layout_marginBottom="@dimen/title_content_margin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardTitleText" />
 
                 <TextView
                     android:id="@+id/synopsis"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardBodyText" />
 
             </LinearLayout>
 
@@ -260,50 +252,33 @@
                 <TextView
                     android:id="@+id/details_heading"
                     android:text="@string/details_text"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:layout_marginBottom="@dimen/title_content_margin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardTitleText" />
 
                 <TextView
                     android:id="@+id/language_heading"
                     android:text="@string/language_text"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_below="@id/details_heading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardBodyText" />
 
                 <TextView
                     android:id="@+id/language"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:layout_below="@id/details_heading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardBodyText" />
 
                 <TextView
                     android:id="@+id/budget_heading"
                     android:text="@string/budget_text"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_below="@id/language_heading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardBodyText" />
 
                 <TextView
                     android:id="@+id/budget"
-                    android:textColor="@android:color/black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:layout_below="@id/language"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/CardBodyText" />
 
             </RelativeLayout>
 
