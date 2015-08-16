@@ -2,8 +2,6 @@ package com.centerstage.limelight.data;
 
 import android.test.AndroidTestCase;
 
-import com.centerstage.limelight.model.LimelightMovie;
-
 /**
  * Created by Smitesh on 8/15/2015.
  * Utilities to make testing easier.

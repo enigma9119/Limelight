@@ -1,4 +1,4 @@
-package com.centerstage.limelight.model;
+package com.centerstage.limelight.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,4 +1,4 @@
-package com.centerstage.limelight.model;
+package com.centerstage.limelight.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

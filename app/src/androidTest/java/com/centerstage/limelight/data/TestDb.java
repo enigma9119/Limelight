@@ -4,10 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
-import com.centerstage.limelight.model.Genre;
-import com.centerstage.limelight.model.LimelightDbHelper;
-import com.centerstage.limelight.model.LimelightMovie;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +12,7 @@ import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 /**
  * Created by Smitesh on 8/15/2015.
+ * Test functions related to the database.
  */
 public class TestDb extends AndroidTestCase {
 

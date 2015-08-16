@@ -16,9 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.centerstage.limelight.model.Genre;
-import com.centerstage.limelight.model.Language;
-import com.centerstage.limelight.model.LimelightMovie;
+import com.centerstage.limelight.data.Genre;
+import com.centerstage.limelight.data.Language;
+import com.centerstage.limelight.data.LimelightMovie;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 

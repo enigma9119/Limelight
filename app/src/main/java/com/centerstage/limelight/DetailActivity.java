@@ -16,7 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
-import com.centerstage.limelight.model.LimelightMovie;
+import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
