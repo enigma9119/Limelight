@@ -218,7 +218,7 @@ public class MovieFragment extends Fragment {
     // Initialize the parcelable Limelight movie object
     void initLimelightMovie(Movie movie) {
         mMovie = new LimelightMovie();
-        mMovie.setId(movie.id);
+        mMovie.setMovieId(movie.id);
         mMovie.setMovieTitle(movie.original_title);
         mMovie.setTagline(movie.tagline);
         mMovie.setReleaseDate(movie.release_date);

@@ -12,25 +12,34 @@ import java.util.List;
  */
 public class LimelightMovie implements Parcelable {
 
-    private Integer id;
-    private String movieTitle;
-    private String tagline;
-    private Date releaseDate;
-    private List<Genre> genres;
-    private Integer runtime;
-    private Double userRating;
-    private Integer numRatings;
-    private String synopsis;
-    private List<Language> languages;
-    private Integer budget;
-    private String backdropPath;
+    Long _id;
+    Integer movieId;
+    String movieTitle;
+    String tagline;
+    Date releaseDate;
+    List<Genre> genres;
+    Integer runtime;
+    Double userRating;
+    Integer numRatings;
+    String synopsis;
+    List<Language> languages;
+    Integer budget;
+    String backdropPath;
 
-    public Integer getId() {
-        return id;
+    private Long getId() {
+        return _id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    private void setId(Long _id) {
+        this._id = _id;
+    }
+
+    public Integer getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(Integer movieId) {
+        this.movieId = movieId;
     }
 
     public String getMovieTitle() {
@@ -131,7 +140,8 @@ public class LimelightMovie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(this.id);
+        dest.writeValue(this._id);
+        dest.writeValue(this.movieId);
         dest.writeString(this.movieTitle);
         dest.writeString(this.tagline);
         dest.writeLong(releaseDate != null ? releaseDate.getTime() : -1);
@@ -146,7 +156,8 @@ public class LimelightMovie implements Parcelable {
     }
 
     protected LimelightMovie(Parcel in) {
-        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+        this._id = (Long) in.readValue(Long.class.getClassLoader());
+        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
         this.movieTitle = in.readString();
         this.tagline = in.readString();
         long tmpReleaseDate = in.readLong();
