@@ -1,18 +1,20 @@
 package com.centerstage.limelight;
 
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.uwetrottmann.tmdb.entities.Configuration;
 
 import butterknife.ButterKnife;
@@ -22,6 +24,8 @@ import butterknife.InjectView;
 public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS = "Prefs";
+    private static final int CONFIG_LOADER = 0;
+
     public static final TmdbService sTmdbService = new TmdbService();
     public static Configuration sConfiguration;
 
@@ -45,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Get the common configuration data from Tmdb
         if (Utils.isOnline(this)) {
-            new FetchConfigurationTask().execute();
+            getSupportLoaderManager().initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
         }
     }
 
@@ -152,16 +156,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class FetchConfigurationTask extends AsyncTask<Void, Void, Configuration> {
+    /**
+     * Loader callbacks for configuration data.
+     */
+    public class ConfigurationLoaderCallbacks implements LoaderManager.LoaderCallbacks<Configuration> {
 
         @Override
-        protected Configuration doInBackground(Void... params) {
-            return sTmdbService.getConfiguration();
+        public Loader<Configuration> onCreateLoader(int id, Bundle args) {
+            return new ConfigurationLoader(getApplicationContext());
         }
 
         @Override
-        protected void onPostExecute(Configuration configuration) {
-            sConfiguration = configuration;
+        public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
+            sConfiguration = data;
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Configuration> loader) {
+
         }
     }
 }

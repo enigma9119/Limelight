@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.CardView;
 import android.text.format.DateUtils;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.centerstage.limelight.data.Genre;
 import com.centerstage.limelight.data.Language;
 import com.centerstage.limelight.data.LimelightMovie;
+import com.centerstage.limelight.loaders.MovieLoader;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 
@@ -34,6 +36,7 @@ import butterknife.InjectView;
 public class MovieFragment extends Fragment {
 
     private final String PARCELABLE_MOVIE_KEY = "parcelable_movie";
+    private static final int MOVIE_LOADER = 0;
 
     OnMovieDataFetchedListener mCallback;
 
@@ -76,6 +79,7 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.budget)
     TextView mBudget;
 
+    private int mTmdbId;
     LimelightMovie mMovie;
 
     public MovieFragment() {
@@ -113,8 +117,8 @@ public class MovieFragment extends Fragment {
             buildMovieUI(mMovie);
 
         } else if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-            int tmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
-            new FetchMovieTask().execute(tmdbId);
+            mTmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
+            getLoaderManager().initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
         }
     }
 
@@ -261,17 +265,25 @@ public class MovieFragment extends Fragment {
     }
 
 
-    private class FetchMovieTask extends AsyncTask<Integer, Void, Movie> {
+    /**
+     * Loader callbacks for a single movie.
+     */
+    public class MovieLoaderCallbacks implements LoaderManager.LoaderCallbacks<Movie> {
 
         @Override
-        protected Movie doInBackground(Integer... params) {
-            return MainActivity.sTmdbService.getMovie(params[0]);
+        public Loader<Movie> onCreateLoader(int id, Bundle args) {
+            return new MovieLoader(getActivity(), mTmdbId);
         }
 
         @Override
-        protected void onPostExecute(Movie movie) {
-            initLimelightMovie(movie);
+        public void onLoadFinished(Loader<Movie> loader, Movie data) {
+            initLimelightMovie(data);
             buildMovieUI(mMovie);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Movie> loader) {
+
         }
     }
 }
