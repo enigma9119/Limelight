@@ -41,7 +41,7 @@ public class MovieFragment extends Fragment {
 
     private static final int CONFIG_LOADER = 0;
     private static final int MOVIE_LOADER = 1;
-    private static final int VIDEOS_LOADER = 2;
+    public static final int VIDEOS_LOADER = 2;
 
     OnMovieDataFetchedListener mCallback;
 
@@ -329,6 +329,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Videos> loader, Videos data) {
             mVideos = data;
+            getLoaderManager().destroyLoader(VIDEOS_LOADER);
         }
 
         @Override

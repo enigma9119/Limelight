@@ -20,5 +20,7 @@
     <string name="runtime_text">Runtime</string>
     <string name="language_text">Language</string>
     <string name="budget_text">Budget</string>
+    <string name="loading_trailer">Still loading trailers. Please, try again after a few seconds.</string>
+    <string name="no_trailer_found">Sorry, No Trailer Found!</string>
 
 </resources>

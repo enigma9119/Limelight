@@ -119,6 +119,8 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
     @Override
     public void onMovieDataFetched(final LimelightMovie movie, final Configuration configuration) {
+        final MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
+
         // Load the backdrop image
         String complete_backdrop_path = configuration.images.base_url +
                 configuration.images.backdrop_sizes.get(1) +
@@ -147,7 +149,6 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                                 }
 
                                 // Send the palette to the movie fragment
-                                MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
                                 if (fragment != null) fragment.onPaletteGenerated(palette);
                             }
                         });
@@ -169,8 +170,10 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                 if (movie.getTrailer() != null) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(movie.getTrailer()));
                     startActivity(intent);
+                } else if(fragment.getLoaderManager().getLoader(MovieFragment.VIDEOS_LOADER) != null) {
+                    Toast.makeText(getApplicationContext(), R.string.loading_trailer, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Sorry, No Trailer Found!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.no_trailer_found, Toast.LENGTH_SHORT).show();
                 }
             }
         });
