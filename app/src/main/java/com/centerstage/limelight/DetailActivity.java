@@ -1,20 +1,27 @@
 package com.centerstage.limelight;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Callback;
@@ -37,6 +44,8 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     ImageView mBackdropImage;
     @InjectView(R.id.movie_poster)
     ImageView mMoviePoster;
+    @InjectView(R.id.fab)
+    FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +118,7 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     }
 
     @Override
-    public void onMovieDataFetched(LimelightMovie movie, Configuration configuration) {
+    public void onMovieDataFetched(final LimelightMovie movie, final Configuration configuration) {
         // Load the backdrop image
         String complete_backdrop_path = configuration.images.base_url +
                 configuration.images.backdrop_sizes.get(1) +
@@ -128,6 +137,15 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                                 mCollapsingToolbar.setContentScrimColor(palette.getVibrantColor(R.attr.colorPrimary));
                                 mCollapsingToolbar.setStatusBarScrimColor(palette.getDarkVibrantColor(R.attr.colorPrimaryDark));
 
+                                // Color the Floating Action Button
+                                if (palette.getVibrantSwatch() != null) {
+                                    Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp);
+                                    playDrawable.setColorFilter(palette.getVibrantSwatch().getBodyTextColor(), PorterDuff.Mode.SRC_IN);
+                                    mFab.setImageDrawable(playDrawable);
+
+                                    mFab.setBackgroundTintList(ColorStateList.valueOf(palette.getVibrantColor(R.attr.colorPrimary)));
+                                }
+
                                 // Send the palette to the movie fragment
                                 MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
                                 if (fragment != null) fragment.onPaletteGenerated(palette);
@@ -143,5 +161,18 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
         // Set the title in the tool bar
         mCollapsingToolbar.setTitle(movie.getMovieTitle());
+
+        // Play the movie trailer when play button is clicked
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (movie.getTrailer() != null) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(movie.getTrailer()));
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Sorry, No Trailer Found!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

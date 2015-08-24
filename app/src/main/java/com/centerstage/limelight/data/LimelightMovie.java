@@ -25,6 +25,7 @@ public class LimelightMovie implements Parcelable {
     List<Language> languages;
     Integer budget;
     String backdropPath;
+    String trailer;
 
     private Long getId() {
         return _id;
@@ -130,6 +131,14 @@ public class LimelightMovie implements Parcelable {
         this.backdropPath = backdropPath;
     }
 
+    public String getTrailer() {
+        return trailer;
+    }
+
+    public void setTrailer(String trailer) {
+        this.trailer = trailer;
+    }
+
     public LimelightMovie() {
     }
 
@@ -153,6 +162,7 @@ public class LimelightMovie implements Parcelable {
         dest.writeTypedList(languages);
         dest.writeValue(this.budget);
         dest.writeString(this.backdropPath);
+        dest.writeString(this.trailer);
     }
 
     protected LimelightMovie(Parcel in) {
@@ -170,6 +180,7 @@ public class LimelightMovie implements Parcelable {
         this.languages = in.createTypedArrayList(Language.CREATOR);
         this.budget = (Integer) in.readValue(Integer.class.getClassLoader());
         this.backdropPath = in.readString();
+        this.trailer = in.readString();
     }
 
     public static final Creator<LimelightMovie> CREATOR = new Creator<LimelightMovie>() {

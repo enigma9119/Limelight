@@ -6,6 +6,7 @@ import com.uwetrottmann.tmdb.Tmdb;
 import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.MovieResultsPage;
+import com.uwetrottmann.tmdb.entities.Videos;
 
 /**
  * Created by Smitesh on 7/8/2015.
@@ -47,6 +48,10 @@ public class TmdbService {
 
     public Movie getMovie(int tmdbId) {
         return getManager().moviesService().summary(tmdbId, null, null);
+    }
+
+    public Videos getVideos(int tmdbId) {
+        return getManager().moviesService().videos(tmdbId, null);
     }
 
     public void movieSearch(String searchQuery) throws ParseException {

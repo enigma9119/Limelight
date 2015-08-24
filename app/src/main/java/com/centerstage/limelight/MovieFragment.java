@@ -22,9 +22,11 @@ import com.centerstage.limelight.data.Language;
 import com.centerstage.limelight.data.LimelightMovie;
 import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieLoader;
+import com.centerstage.limelight.loaders.VideosLoader;
 import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
+import com.uwetrottmann.tmdb.entities.Videos;
 
 import java.util.ArrayList;
 
@@ -39,6 +41,7 @@ public class MovieFragment extends Fragment {
 
     private static final int CONFIG_LOADER = 0;
     private static final int MOVIE_LOADER = 1;
+    private static final int VIDEOS_LOADER = 2;
 
     OnMovieDataFetchedListener mCallback;
 
@@ -84,6 +87,7 @@ public class MovieFragment extends Fragment {
     private int mTmdbId;
     private Configuration mConfiguration;
     LimelightMovie mMovie;
+    Videos mVideos;
 
     public MovieFragment() {
     }
@@ -115,6 +119,7 @@ public class MovieFragment extends Fragment {
         LoaderManager lm = getLoaderManager();
         lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
         lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
+        lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
     }
 
     @Override
@@ -257,6 +262,12 @@ public class MovieFragment extends Fragment {
 
         mMovie.setBudget(movie.budget);
         mMovie.setBackdropPath(movie.backdrop_path);
+
+        if (mVideos != null && mVideos.results != null && !mVideos.results.isEmpty()) {
+            final String youtubeBaseUrl = "https://www.youtube.com/watch?v=";
+            String trailer = youtubeBaseUrl + mVideos.results.get(0).key;
+            mMovie.setTrailer(trailer);
+        }
     }
 
 
@@ -304,6 +315,24 @@ public class MovieFragment extends Fragment {
 
         @Override
         public void onLoaderReset(Loader<Configuration> loader) {
+
+        }
+    }
+
+    private class VideosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Videos> {
+
+        @Override
+        public Loader<Videos> onCreateLoader(int id, Bundle args) {
+            return new VideosLoader(getActivity(), mTmdbId);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Videos> loader, Videos data) {
+            mVideos = data;
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Videos> loader) {
 
         }
     }
