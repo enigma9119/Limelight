@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.uwetrottmann.tmdb.entities.Configuration;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -108,10 +109,10 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     }
 
     @Override
-    public void onMovieDataFetched(LimelightMovie movie) {
+    public void onMovieDataFetched(LimelightMovie movie, Configuration configuration) {
         // Load the backdrop image
-        String complete_backdrop_path = MainActivity.sConfiguration.images.base_url +
-                MainActivity.sConfiguration.images.backdrop_sizes.get(1) +
+        String complete_backdrop_path = configuration.images.base_url +
+                configuration.images.backdrop_sizes.get(1) +
                 movie.getBackdropPath();
 
         Picasso.with(this).load(complete_backdrop_path)

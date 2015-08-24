@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieResultsPageLoader;
+import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.MovieResultsPage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -31,17 +34,16 @@ public class HomeFragment extends Fragment {
     public static final int SORT_POPULAR = 0;
     public static final int SORT_RATING = 1;
 
-    private static final int MOVIE_DATA_LOADER = 0;
+    private static final int CONFIG_LOADER = 0;
+    private static final int MOVIE_DATA_LOADER = 1;
 
     private int mTabPage;
-    private MovieAdapter mMovieAdapter;
     private List<Movie> mMovies;
+    private Configuration mConfiguration;
 
     @InjectView(R.id.recyclerview)
     RecyclerView mRecyclerView;
-
-    LoaderManager lm;
-    MovieResultsPageLoader mMovieResultsPageLoader;
+    GridLayoutManager mLayoutManager;
 
     public HomeFragment() {
     }
@@ -57,13 +59,18 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTabPage = getArguments().getInt(ARG_PAGE);
-        setRetainInstance(true);
 
-        lm = getLoaderManager();
-        if (lm.getLoader(MOVIE_DATA_LOADER) != null) {
-            lm.initLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
-        }
+        mTabPage = getArguments().getInt(ARG_PAGE);
+        mMovies = new ArrayList<>();
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
+        lm.initLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
     }
 
     @Override
@@ -75,30 +82,19 @@ public class HomeFragment extends Fragment {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
             ButterKnife.inject(this, rootView);
 
+            // Restart loader so that when sort options are changed, new data is loaded
+            getLoaderManager().restartLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
+
             // Improve performance since changes in adapter content won't change size of RecyclerView
             mRecyclerView.setHasFixedSize(true);
 
             // Use a grid layout manager
             if (getActivity().getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
-                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+                mLayoutManager = new GridLayoutManager(getActivity(), 2);
             } else {
-                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+                mLayoutManager = new GridLayoutManager(getActivity(), 3);
             }
-
-            // Specify an adapter
-            mMovieAdapter = new MovieAdapter();
-            mRecyclerView.setAdapter(mMovieAdapter);
-
-            // Get the list of movies.
-            // During configuration changes, the fragment will retain the mMovies object due to
-            // setRetainInstance(true). If this data exists, then don't make another network call.
-            // This also maintains the user's position in the RecyclerView.
-            if (savedInstanceState != null && mMovies != null) {
-                mMovieAdapter.updateAdapter(mMovies);
-                mMovieAdapter.notifyDataSetChanged();
-            } else {
-                lm.restartLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
-            }
+            mRecyclerView.setLayoutManager(mLayoutManager);
 
         } else {
             // If there is no internet connection, load a different layout
@@ -106,6 +102,22 @@ public class HomeFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    public void setupAdapter() {
+        if (getActivity() == null || mRecyclerView == null) return;
+
+        if (!mMovies.isEmpty() && mConfiguration != null) {
+            if (mRecyclerView.getAdapter() == null) {
+                mRecyclerView.setAdapter(new MovieAdapter(mMovies, mConfiguration));
+            } else {
+                MovieAdapter adapter = (MovieAdapter) mRecyclerView.getAdapter();
+                adapter.updateAdapter(mMovies);
+                adapter.notifyDataSetChanged();
+            }
+        } else {
+            mRecyclerView.setAdapter(null);
+        }
     }
 
 
@@ -116,21 +128,41 @@ public class HomeFragment extends Fragment {
 
         @Override
         public Loader<MovieResultsPage> onCreateLoader(int id, Bundle args) {
-            mMovieResultsPageLoader = new MovieResultsPageLoader(getActivity(), mTabPage);
-            return mMovieResultsPageLoader;
+            return new MovieResultsPageLoader(getActivity(), mTabPage);
         }
 
         @Override
         public void onLoadFinished(Loader<MovieResultsPage> loader, MovieResultsPage data) {
             if (data != null && !data.results.isEmpty()) {
                 mMovies = data.results;
-                mMovieAdapter.updateAdapter(mMovies);
-                mMovieAdapter.notifyDataSetChanged();
+                setupAdapter();
             }
         }
 
         @Override
         public void onLoaderReset(Loader<MovieResultsPage> loader) {
+
+        }
+    }
+
+    /**
+     * Loader callbacks for tmdb configuration data
+     */
+    public class ConfigurationLoaderCallbacks implements LoaderManager.LoaderCallbacks<Configuration> {
+
+        @Override
+        public Loader<Configuration> onCreateLoader(int id, Bundle args) {
+            return new ConfigurationLoader(getActivity());
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
+            mConfiguration = data;
+            setupAdapter();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Configuration> loader) {
 
         }
     }

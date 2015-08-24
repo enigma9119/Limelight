@@ -20,7 +20,9 @@ import android.widget.TextView;
 import com.centerstage.limelight.data.Genre;
 import com.centerstage.limelight.data.Language;
 import com.centerstage.limelight.data.LimelightMovie;
+import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieLoader;
+import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 
@@ -35,13 +37,13 @@ import butterknife.InjectView;
  */
 public class MovieFragment extends Fragment {
 
-    private final String PARCELABLE_MOVIE_KEY = "parcelable_movie";
-    private static final int MOVIE_LOADER = 0;
+    private static final int CONFIG_LOADER = 0;
+    private static final int MOVIE_LOADER = 1;
 
     OnMovieDataFetchedListener mCallback;
 
     public interface OnMovieDataFetchedListener {
-        void onMovieDataFetched(LimelightMovie movie);
+        void onMovieDataFetched(LimelightMovie movie, Configuration configuration);
     }
 
     @InjectView(R.id.movie_title)
@@ -80,6 +82,7 @@ public class MovieFragment extends Fragment {
     TextView mBudget;
 
     private int mTmdbId;
+    private Configuration mConfiguration;
     LimelightMovie mMovie;
 
     public MovieFragment() {
@@ -100,26 +103,18 @@ public class MovieFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(PARCELABLE_MOVIE_KEY, mMovie);
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         Intent intent = getActivity().getIntent();
 
-        if (savedInstanceState != null) {
-            // Use saved movie object to build UI
-            mMovie = savedInstanceState.getParcelable(PARCELABLE_MOVIE_KEY);
-            buildMovieUI(mMovie);
-
-        } else if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+        if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
             mTmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
-            getLoaderManager().initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
         }
+
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
+        lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
     }
 
     @Override
@@ -159,41 +154,41 @@ public class MovieFragment extends Fragment {
     }
 
     // Build the main UI for the detail screen
-    private void buildMovieUI(LimelightMovie movie) {
+    private void buildMovieUI() {
         // Use a callback to handle using certain elements of the fetched data in activity
-        mCallback.onMovieDataFetched(movie);
+        mCallback.onMovieDataFetched(mMovie, mConfiguration);
 
         // Set the title and tagline
-        mMovieTitle.setText(movie.getMovieTitle());
-        if (movie.getTagline() != null && !movie.getTagline().isEmpty()) {
-            mTagline.setText(movie.getTagline());
+        mMovieTitle.setText(mMovie.getMovieTitle());
+        if (mMovie.getTagline() != null && !mMovie.getTagline().isEmpty()) {
+            mTagline.setText(mMovie.getTagline());
         } else {
             mTagline.setVisibility(View.GONE);
         }
 
         // Set the release date
-        String formattedDate = DateUtils.formatDateTime(getActivity(), movie.getReleaseDate().getTime(), 0);
+        String formattedDate = DateUtils.formatDateTime(getActivity(), mMovie.getReleaseDate().getTime(), 0);
         mReleaseDate.setText(formattedDate);
 
         // Set the genres and runtime
-        if (!movie.getGenres().isEmpty() && movie.getGenres().get(0) != null && !movie.getGenres().get(0).getName().isEmpty()) {
-                if (movie.getGenres().size() >= 2 && movie.getGenres().get(1) != null && !movie.getGenres().get(1).getName().isEmpty()) {
-                mGenres.setText(String.format("%s | %s", movie.getGenres().get(0).getName(), movie.getGenres().get(1).getName()));
+        if (!mMovie.getGenres().isEmpty() && mMovie.getGenres().get(0) != null && !mMovie.getGenres().get(0).getName().isEmpty()) {
+                if (mMovie.getGenres().size() >= 2 && mMovie.getGenres().get(1) != null && !mMovie.getGenres().get(1).getName().isEmpty()) {
+                mGenres.setText(String.format("%s | %s", mMovie.getGenres().get(0).getName(), mMovie.getGenres().get(1).getName()));
             } else {
-                mGenres.setText(movie.getGenres().get(0).getName());
+                mGenres.setText(mMovie.getGenres().get(0).getName());
             }
         }
 
-        if (movie.getRuntime() != null && movie.getRuntime() != 0) {
-            String runtimeText = String.format("%d minutes", movie.getRuntime());
+        if (mMovie.getRuntime() != null && mMovie.getRuntime() != 0) {
+            String runtimeText = String.format("%d minutes", mMovie.getRuntime());
             mRuntime.setText(runtimeText);
         }
 
         // Set the user rating
-        if (movie.getUserRating() != null && movie.getUserRating() != 0) {
-            mUserRating.setText(movie.getUserRating().toString());
-            if (movie.getNumRatings() != null && movie.getNumRatings() != 0) {
-                mUserRatingCount.setText(Integer.toString(movie.getNumRatings()));
+        if (mMovie.getUserRating() != null && mMovie.getUserRating() != 0) {
+            mUserRating.setText(mMovie.getUserRating().toString());
+            if (mMovie.getNumRatings() != null && mMovie.getNumRatings() != 0) {
+                mUserRatingCount.setText(Integer.toString(mMovie.getNumRatings()));
             } else {
                 mUserRatingCount.setVisibility(View.GONE);
                 mRatingsText.setVisibility(View.GONE);
@@ -202,17 +197,17 @@ public class MovieFragment extends Fragment {
             mUserRatingCardView.setVisibility(View.GONE);
         }
 
-        mSynopsis.setText(movie.getSynopsis());
+        mSynopsis.setText(mMovie.getSynopsis());
 
         // Details card
-        if (!movie.getLanguages().isEmpty() && movie.getLanguages().get(0) != null) {
-            mLanguage.setText(movie.getLanguages().get(0).getName());
+        if (!mMovie.getLanguages().isEmpty() && mMovie.getLanguages().get(0) != null) {
+            mLanguage.setText(mMovie.getLanguages().get(0).getName());
         } else {
             mLanguage.setText("-");
         }
 
-        if (movie.getBudget() != null && movie.getBudget() != 0) {
-            String budgetText = String.format("$%d", movie.getBudget());
+        if (mMovie.getBudget() != null && mMovie.getBudget() != 0) {
+            String budgetText = String.format("$%d", mMovie.getBudget());
             mBudget.setText(budgetText);
         } else {
             mBudget.setText("-");
@@ -278,11 +273,37 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Movie> loader, Movie data) {
             initLimelightMovie(data);
-            buildMovieUI(mMovie);
+            if (mMovie != null && mConfiguration != null) {
+                buildMovieUI();
+            }
         }
 
         @Override
         public void onLoaderReset(Loader<Movie> loader) {
+
+        }
+    }
+
+    /**
+     * Loader callbacks for tmdb configuration data
+     */
+    public class ConfigurationLoaderCallbacks implements LoaderManager.LoaderCallbacks<Configuration> {
+
+        @Override
+        public Loader<Configuration> onCreateLoader(int id, Bundle args) {
+            return new ConfigurationLoader(getActivity());
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
+            mConfiguration = data;
+            if (mMovie != null && mConfiguration != null) {
+                buildMovieUI();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Configuration> loader) {
 
         }
     }

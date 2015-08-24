@@ -6,16 +6,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.centerstage.limelight.loaders.ConfigurationLoader;
-import com.uwetrottmann.tmdb.entities.Configuration;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -24,10 +19,7 @@ import butterknife.InjectView;
 public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS = "Prefs";
-    private static final int CONFIG_LOADER = 0;
-
     public static final TmdbService sTmdbService = new TmdbService();
-    public static Configuration sConfiguration;
 
     @InjectView(R.id.tool_bar)
     Toolbar mToolbar;
@@ -46,11 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(new MoviesPagerAdapter(getSupportFragmentManager()));
         mTabLayout.setupWithViewPager(mViewPager);
-
-        // Get the common configuration data from Tmdb
-        if (Utils.isOnline(this)) {
-            getSupportLoaderManager().initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
-        }
     }
 
 
@@ -152,28 +139,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return PAGE_COUNT;
-        }
-    }
-
-
-    /**
-     * Loader callbacks for configuration data.
-     */
-    public class ConfigurationLoaderCallbacks implements LoaderManager.LoaderCallbacks<Configuration> {
-
-        @Override
-        public Loader<Configuration> onCreateLoader(int id, Bundle args) {
-            return new ConfigurationLoader(getApplicationContext());
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
-            sConfiguration = data;
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Configuration> loader) {
-
         }
     }
 }

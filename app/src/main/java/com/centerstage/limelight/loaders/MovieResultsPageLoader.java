@@ -16,15 +16,16 @@ public class MovieResultsPageLoader extends DataLoader<MovieResultsPage> {
 
     private static final String TAG = MovieResultsPageLoader.class.getSimpleName();
 
-    private int mPageNumber = 1;
+    private static int mPageNumber;
     private int mTabPage;
 
     public MovieResultsPageLoader(Context context, int tabPage) {
         super(context);
         mTabPage = tabPage;
+        mPageNumber = 1;
     }
 
-    public void setPageNumber(int pageNumber) {
+    public static void setPageNumber(int pageNumber) {
         mPageNumber = pageNumber;
     }
 
