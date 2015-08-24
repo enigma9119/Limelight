@@ -27,6 +27,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.centerstage.limelight.MainActivity" />
         </activity>
+        <provider
+            android:exported="false"
+            android:authorities="com.centerstage.limelight.data.provider"
+            android:name=".data.MovieProvider" />
     </application>
 
 </manifest>

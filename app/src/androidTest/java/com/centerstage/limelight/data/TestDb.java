@@ -18,14 +18,15 @@ public class TestDb extends AndroidTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        mContext.deleteDatabase(LimelightDbHelper.DATABASE_NAME);
+        mContext.deleteDatabase(MovieProvider.DATABASE_NAME);
     }
 
     public void testCreateDb() throws Throwable {
         final HashSet<String> tableNameHashSet = new HashSet<>();
         tableNameHashSet.add("LimelightMovie");
 
-        SQLiteDatabase db = new LimelightDbHelper(mContext).getWritableDatabase();
+        MovieProvider provider = new MovieProvider();
+        SQLiteDatabase db = provider.getDatabaseHelper(mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
 
         // have we created the tables we want?
@@ -48,7 +49,8 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testMovieTable() {
-        SQLiteDatabase db = new LimelightDbHelper(mContext).getWritableDatabase();
+        MovieProvider provider = new MovieProvider();
+        SQLiteDatabase db = provider.getDatabaseHelper(mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
 
         // Insert values into the movie table
