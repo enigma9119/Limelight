@@ -68,9 +68,11 @@ public class HomeFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        LoaderManager lm = getLoaderManager();
-        lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
-        lm.initLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
+        if (Utils.isOnline(getActivity())) {
+            LoaderManager lm = getLoaderManager();
+            lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
+            lm.initLoader(MOVIE_DATA_LOADER, null, new MovieDataLoaderCallbacks());
+        }
     }
 
     @Override
