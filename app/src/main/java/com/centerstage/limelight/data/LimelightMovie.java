@@ -17,12 +17,12 @@ public class LimelightMovie implements Parcelable {
     String movieTitle;
     String tagline;
     Date releaseDate;
-    List<Genre> genres;
+    List<ParcelableGenre> genres;
     Integer runtime;
     Double userRating;
     Integer numRatings;
     String synopsis;
-    List<Language> languages;
+    List<ParcelableLanguage> languages;
     Integer budget;
     String backdropPath;
     String trailer;
@@ -67,11 +67,11 @@ public class LimelightMovie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
-    public List<Genre> getGenres() {
+    public List<ParcelableGenre> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<Genre> genres) {
+    public void setGenres(List<ParcelableGenre> genres) {
         this.genres = genres;
     }
 
@@ -107,11 +107,11 @@ public class LimelightMovie implements Parcelable {
         this.synopsis = synopsis;
     }
 
-    public List<Language> getLanguages() {
+    public List<ParcelableLanguage> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(List<Language> languages) {
+    public void setLanguages(List<ParcelableLanguage> languages) {
         this.languages = languages;
     }
 
@@ -172,12 +172,12 @@ public class LimelightMovie implements Parcelable {
         this.tagline = in.readString();
         long tmpReleaseDate = in.readLong();
         this.releaseDate = tmpReleaseDate == -1 ? null : new Date(tmpReleaseDate);
-        this.genres = in.createTypedArrayList(Genre.CREATOR);
+        this.genres = in.createTypedArrayList(ParcelableGenre.CREATOR);
         this.runtime = (Integer) in.readValue(Integer.class.getClassLoader());
         this.userRating = (Double) in.readValue(Double.class.getClassLoader());
         this.numRatings = (Integer) in.readValue(Integer.class.getClassLoader());
         this.synopsis = in.readString();
-        this.languages = in.createTypedArrayList(Language.CREATOR);
+        this.languages = in.createTypedArrayList(ParcelableLanguage.CREATOR);
         this.budget = (Integer) in.readValue(Integer.class.getClassLoader());
         this.backdropPath = in.readString();
         this.trailer = in.readString();

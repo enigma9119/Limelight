@@ -60,8 +60,8 @@ public class TestDb extends AndroidTestCase {
         testMovie.setUserRating(7.0);
 
         // Insert a genre value into the movie table
-        List<Genre> testGenres = new ArrayList<>();
-        Genre testGenre = new Genre();
+        List<ParcelableGenre> testGenres = new ArrayList<>();
+        ParcelableGenre testGenre = new ParcelableGenre();
         testGenre.setId(11);
         testGenre.setName("Action");
         testGenres.add(testGenre);

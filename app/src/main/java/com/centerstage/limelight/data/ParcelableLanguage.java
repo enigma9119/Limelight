@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by Smitesh on 7/20/2015.
  * A Parcelable Language.
  */
-public class Language implements Parcelable {
+public class ParcelableLanguage implements Parcelable {
 
     String iso_639_1;
     String name;
@@ -39,21 +39,21 @@ public class Language implements Parcelable {
         dest.writeString(this.name);
     }
 
-    public Language() {
+    public ParcelableLanguage() {
     }
 
-    protected Language(Parcel in) {
+    protected ParcelableLanguage(Parcel in) {
         this.iso_639_1 = in.readString();
         this.name = in.readString();
     }
 
-    public static final Creator<Language> CREATOR = new Creator<Language>() {
-        public Language createFromParcel(Parcel source) {
-            return new Language(source);
+    public static final Creator<ParcelableLanguage> CREATOR = new Creator<ParcelableLanguage>() {
+        public ParcelableLanguage createFromParcel(Parcel source) {
+            return new ParcelableLanguage(source);
         }
 
-        public Language[] newArray(int size) {
-            return new Language[size];
+        public ParcelableLanguage[] newArray(int size) {
+            return new ParcelableLanguage[size];
         }
     };
 }

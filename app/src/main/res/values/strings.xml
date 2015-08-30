@@ -22,5 +22,9 @@
     <string name="budget_text">Budget</string>
     <string name="loading_trailer">Still loading trailers. Please, try again after a few seconds.</string>
     <string name="no_trailer_found">Sorry, No Trailer Found!</string>
+    <string name="reviews_text">Reviews</string>
+    <string name="no_reviews_found">No Reviews Found</string>
+    <string name="author_text">Author:</string>
+    <string name="more_text">More</string>
 
 </resources>

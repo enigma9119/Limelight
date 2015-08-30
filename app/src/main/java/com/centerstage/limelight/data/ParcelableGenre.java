@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by Smitesh on 7/20/2015.
  * A Parcelable Genre.
  */
-public class Genre implements Parcelable {
+public class ParcelableGenre implements Parcelable {
 
     int id;
     String name;
@@ -39,21 +39,21 @@ public class Genre implements Parcelable {
         dest.writeString(this.name);
     }
 
-    public Genre() {
+    public ParcelableGenre() {
     }
 
-    protected Genre(Parcel in) {
+    protected ParcelableGenre(Parcel in) {
         this.id = in.readInt();
         this.name = in.readString();
     }
 
-    public static final Creator<Genre> CREATOR = new Creator<Genre>() {
-        public Genre createFromParcel(Parcel source) {
-            return new Genre(source);
+    public static final Creator<ParcelableGenre> CREATOR = new Creator<ParcelableGenre>() {
+        public ParcelableGenre createFromParcel(Parcel source) {
+            return new ParcelableGenre(source);
         }
 
-        public Genre[] newArray(int size) {
-            return new Genre[size];
+        public ParcelableGenre[] newArray(int size) {
+            return new ParcelableGenre[size];
         }
     };
 }

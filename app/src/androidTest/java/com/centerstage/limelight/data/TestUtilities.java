@@ -13,7 +13,7 @@ public class TestUtilities extends AndroidTestCase {
         assertEquals(testMovie.getMovieTitle(), queriedMovie.getMovieTitle());
         assertEquals(testMovie.getUserRating(), queriedMovie.getUserRating());
 
-        // Test the Genre object
+        // Test the ParcelableGenre object
         assertNotNull(testMovie.getGenres().get(0));
         assertNotNull(queriedMovie.getGenres().get(0));
         assertEquals(testMovie.getGenres().get(0).getId(), queriedMovie.getGenres().get(0).getId());

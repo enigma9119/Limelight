@@ -3,6 +3,7 @@ package com.centerstage.limelight;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -17,18 +18,24 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.centerstage.limelight.data.Genre;
-import com.centerstage.limelight.data.Language;
+import com.centerstage.limelight.data.ParcelableGenre;
+import com.centerstage.limelight.data.ParcelableLanguage;
 import com.centerstage.limelight.data.LimelightMovie;
+import com.centerstage.limelight.data.ParcelableReview;
 import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieLoader;
+import com.centerstage.limelight.loaders.ReviewsLoader;
 import com.centerstage.limelight.loaders.VideosLoader;
 import com.uwetrottmann.tmdb.entities.Configuration;
+import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
+import com.uwetrottmann.tmdb.entities.Review;
+import com.uwetrottmann.tmdb.entities.ReviewResultsPage;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 import com.uwetrottmann.tmdb.entities.Videos;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -42,6 +49,7 @@ public class MovieFragment extends Fragment {
     private static final int CONFIG_LOADER = 0;
     private static final int MOVIE_LOADER = 1;
     public static final int VIDEOS_LOADER = 2;
+    private static final int REVIEWS_LOADER = 3;
 
     OnMovieDataFetchedListener mCallback;
 
@@ -84,10 +92,20 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.budget)
     TextView mBudget;
 
+    @InjectView(R.id.author_text)
+    TextView mAuthorText;
+    @InjectView(R.id.author)
+    TextView mReviewAuthor;
+    @InjectView(R.id.review)
+    TextView mReview;
+    @InjectView(R.id.more_text)
+    TextView mMoreText;
+
     private int mTmdbId;
     private Configuration mConfiguration;
     LimelightMovie mMovie;
     Videos mVideos;
+    List<ParcelableReview> mReviews;
 
     public MovieFragment() {
     }
@@ -120,6 +138,7 @@ public class MovieFragment extends Fragment {
         lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
         lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
         lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
+        lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
     }
 
     @Override
@@ -228,10 +247,10 @@ public class MovieFragment extends Fragment {
         mMovie.setReleaseDate(movie.release_date);
 
         if (movie.genres != null) {
-            ArrayList<Genre> parcelableGenres = new ArrayList<>(movie.genres.size());
+            ArrayList<ParcelableGenre> parcelableGenres = new ArrayList<>(movie.genres.size());
 
-            for (com.uwetrottmann.tmdb.entities.Genre genre : movie.genres) {
-                Genre parcelableGenre = new Genre();
+            for (Genre genre : movie.genres) {
+                ParcelableGenre parcelableGenre = new ParcelableGenre();
                 parcelableGenre.setId(genre.id);
                 parcelableGenre.setName(genre.name);
 
@@ -247,17 +266,17 @@ public class MovieFragment extends Fragment {
         mMovie.setSynopsis(movie.overview);
 
         if (movie.spoken_languages != null) {
-            ArrayList<Language> languages = new ArrayList<>(movie.spoken_languages.size());
+            ArrayList<ParcelableLanguage> parcelableLanguages = new ArrayList<>(movie.spoken_languages.size());
 
             for (SpokenLanguage spokenLanguage : movie.spoken_languages) {
-                Language language = new Language();
-                language.setIso_639_1(spokenLanguage.iso_639_1);
-                language.setName(spokenLanguage.name);
+                ParcelableLanguage parcelableLanguage = new ParcelableLanguage();
+                parcelableLanguage.setIso_639_1(spokenLanguage.iso_639_1);
+                parcelableLanguage.setName(spokenLanguage.name);
 
-                languages.add(language);
+                parcelableLanguages.add(parcelableLanguage);
             }
 
-            mMovie.setLanguages(languages);
+            mMovie.setLanguages(parcelableLanguages);
         }
 
         mMovie.setBudget(movie.budget);
@@ -267,6 +286,39 @@ public class MovieFragment extends Fragment {
             final String youtubeBaseUrl = "https://www.youtube.com/watch?v=";
             String trailer = youtubeBaseUrl + mVideos.results.get(0).key;
             mMovie.setTrailer(trailer);
+        }
+    }
+
+    // Initialize the parcelable Reviews object
+    void initParcelableReviews(ReviewResultsPage reviewsPage) {
+        mReviews = new ArrayList<>();
+
+        if (reviewsPage != null && reviewsPage.results != null && !reviewsPage.results.isEmpty()) {
+
+            for (int i = 0; i < reviewsPage.results.size(); i++) {
+                ParcelableReview parcelableReview = new ParcelableReview();
+                Review review = reviewsPage.results.get(i);
+
+                parcelableReview.setReviewId(review.id);
+                parcelableReview.setAuthor(review.author);
+                parcelableReview.setContent(review.content);
+                parcelableReview.setUrl(review.url);
+
+                mReviews.add(parcelableReview);
+            }
+        }
+    }
+
+    // Build the UI for the single review on the detail screen
+    void buildReviewUI() {
+        if (!mReviews.isEmpty()) {
+            mReviewAuthor.setText(mReviews.get(0).getAuthor());
+            mReview.setText(mReviews.get(0).getContent());
+        } else {
+            mAuthorText.setVisibility(View.GONE);
+            mMoreText.setVisibility(View.GONE);
+            mReview.setText(R.string.no_reviews_found);
+            mReview.setTypeface(null, Typeface.ITALIC);
         }
     }
 
@@ -319,6 +371,9 @@ public class MovieFragment extends Fragment {
         }
     }
 
+    /**
+     * Loader callbacks for movie videos
+     */
     private class VideosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Videos> {
 
         @Override
@@ -334,6 +389,28 @@ public class MovieFragment extends Fragment {
 
         @Override
         public void onLoaderReset(Loader<Videos> loader) {
+
+        }
+    }
+
+    /**
+     * Loader callbacks for movie reviews
+     */
+    private class ReviewsLoaderCallbacks implements LoaderManager.LoaderCallbacks<ReviewResultsPage> {
+
+        @Override
+        public Loader<ReviewResultsPage> onCreateLoader(int id, Bundle args) {
+            return new ReviewsLoader(getActivity(), mTmdbId);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<ReviewResultsPage> loader, ReviewResultsPage data) {
+            initParcelableReviews(data);
+            buildReviewUI();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<ReviewResultsPage> loader) {
 
         }
     }
