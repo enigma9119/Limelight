@@ -2,6 +2,7 @@
 
     <string name="app_name">Limelight</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_review">ReviewActivity</string>
 
     <string name="movie_poster_description">Movie poster</string>
     <string name="movie_backdrop_description">Backdrop image for the movie</string>

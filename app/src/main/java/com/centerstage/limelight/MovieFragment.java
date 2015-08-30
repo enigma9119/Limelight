@@ -35,7 +35,6 @@ import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 import com.uwetrottmann.tmdb.entities.Videos;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -92,6 +91,8 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.budget)
     TextView mBudget;
 
+    @InjectView(R.id.reviews_cardview)
+    CardView mReviewsCardView;
     @InjectView(R.id.author_text)
     TextView mAuthorText;
     @InjectView(R.id.author)
@@ -101,11 +102,12 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.more_text)
     TextView mMoreText;
 
+    Palette mPalette;
     private int mTmdbId;
     private Configuration mConfiguration;
     LimelightMovie mMovie;
     Videos mVideos;
-    List<ParcelableReview> mReviews;
+    ArrayList<ParcelableReview> mReviews;
 
     public MovieFragment() {
     }
@@ -147,11 +149,29 @@ public class MovieFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         ButterKnife.inject(this, rootView);
 
+        mReviewsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMovie != null && mPalette != null) {
+                    Intent intent = new Intent(getActivity(), ReviewActivity.class);
+
+                    intent.putParcelableArrayListExtra(ReviewActivity.REVIEWS_EXTRA, mReviews);
+                    intent.putExtra(ReviewActivity.MOVIE_TITLE_EXTRA, mMovie.getMovieTitle());
+                    intent.putExtra(ReviewActivity.VIBRANT_COLOR_EXTRA, mPalette.getVibrantColor(R.attr.colorPrimary));
+                    intent.putExtra(ReviewActivity.DARK_VIBRANT_COLOR_EXTRA, mPalette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+
+                    startActivity(intent);
+                }
+            }
+        });
+
         return rootView;
     }
 
     // Callback function to use when color palette has been generated using the backdrop image
     public void onPaletteGenerated(Palette palette) {
+        mPalette = palette;
+
         Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
         Palette.Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
 
