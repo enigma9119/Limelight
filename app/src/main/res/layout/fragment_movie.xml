@@ -63,6 +63,35 @@
         </android.support.v7.widget.CardView>
 
 
+        <!-- Favorites button -->
+        <android.support.v7.widget.CardView
+            android:id="@+id/favorites_cardview"
+            card_view:contentPadding="5dp"
+            card_view:cardCornerRadius="0dp"
+            card_view:cardElevation="4dp"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_marginTop="5dp"
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/favorites"
+                android:text="@string/save_favorites"
+                android:textSize="15sp"
+                android:textColor="@android:color/black"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:drawableLeft="@drawable/ic_bookmark_outline_black_24dp"
+                android:drawableStart="@drawable/ic_bookmark_outline_black_24dp"
+                android:drawablePadding="7dp"
+                android:tag="favoritesOutline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </android.support.v7.widget.CardView>
+
+
         <!-- Release date -->
         <android.support.v7.widget.CardView
             card_view:contentPadding="5dp"

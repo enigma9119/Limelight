@@ -27,5 +27,6 @@
     <string name="no_reviews_found">No Reviews Found</string>
     <string name="author_text">Author:</string>
     <string name="more_text">More</string>
+    <string name="save_favorites">Save to Favorites</string>
 
 </resources>

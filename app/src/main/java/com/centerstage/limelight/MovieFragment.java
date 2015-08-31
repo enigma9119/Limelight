@@ -61,6 +61,11 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.tagline)
     TextView mTagline;
 
+    @InjectView(R.id.favorites_cardview)
+    CardView mFavoritesCardView;
+    @InjectView(R.id.favorites)
+    TextView mFavorites;
+
     @InjectView(R.id.release_date)
     TextView mReleaseDate;
 
@@ -172,8 +177,8 @@ public class MovieFragment extends Fragment {
     public void onPaletteGenerated(Palette palette) {
         mPalette = palette;
 
-        Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
-        Palette.Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
+        final Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
+        final Palette.Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
 
         Drawable starDrawable = getResources().getDrawable(R.drawable.ic_star_black_36dp);
 
@@ -195,6 +200,26 @@ public class MovieFragment extends Fragment {
             mGenres.setTextColor(darkVibrantSwatch.getBodyTextColor());
             mRuntime.setTextColor(darkVibrantSwatch.getBodyTextColor());
         }
+
+        // Favorites button
+        mFavoritesCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Drawable favoritesOutlineDrawable = getResources().getDrawable(R.drawable.ic_bookmark_outline_black_24dp);
+                Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_bookmark_black_24dp);
+
+                if (mFavorites.getTag().equals("favoritesOutline")) {
+                    if (vibrantSwatch != null) {
+                        favoritesDrawable.setColorFilter(mPalette.getVibrantColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
+                    }
+                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+                    mFavorites.setTag("favorites");
+                } else {
+                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesOutlineDrawable, null, null, null);
+                    mFavorites.setTag("favoritesOutline");
+                }
+            }
+        });
     }
 
     // Build the main UI for the detail screen
