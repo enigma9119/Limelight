@@ -339,6 +339,7 @@ public class MovieFragment extends Fragment {
             mMoreText.setVisibility(View.GONE);
             mReview.setText(R.string.no_reviews_found);
             mReview.setTypeface(null, Typeface.ITALIC);
+            mReviewsCardView.setClickable(false);
         }
     }
 
