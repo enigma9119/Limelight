@@ -2,13 +2,17 @@ package com.centerstage.limelight;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,6 +21,8 @@ import butterknife.InjectView;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String PREFS = "Prefs";
     public static final TmdbService sTmdbService = new TmdbService();
@@ -27,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     ViewPager mViewPager;
     @InjectView(R.id.sliding_tabs)
     TabLayout mTabLayout;
+    @InjectView(R.id.navigation_view)
+    NavigationView mNavigationView;
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +48,43 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(new MoviesPagerAdapter(getSupportFragmentManager()));
         mTabLayout.setupWithViewPager(mViewPager);
+
+        // Handle item click in the navigation drawer
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                // Toggle checked state
+                if (menuItem.isChecked()) {
+                    menuItem.setChecked(false);
+                } else {
+                    menuItem.setChecked(true);
+                }
+
+                // Close drawer on item click
+                mDrawerLayout.closeDrawers();
+
+                // Check to see which item was clicked
+                switch (menuItem.getItemId()) {
+                    case R.id.home:
+                        break;
+                    case R.id.favorites:
+                        break;
+                    default:
+                        Log.e(TAG, "Invalid item clicked in drawer: " + Integer.toString(menuItem.getItemId()));
+                }
+
+                return true;
+            }
+        });
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,
+                mDrawerLayout,mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        // Display hamburger icon
+        actionBarDrawerToggle.syncState();
     }
 
 

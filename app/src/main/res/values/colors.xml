@@ -4,6 +4,10 @@
     <color name="material_deep_purple_100">#D1C4E9</color>
     <color name="material_deep_purple_500">#673AB7</color>
     <color name="material_deep_purple_700">#512DA8</color>
+
+    <color name="material_grey_500">#9E9E9E</color>
+    <color name="material_grey_700">#424242</color>
+
     <color name="material_amber_A200">#FFD740</color>
 
 </resources>
