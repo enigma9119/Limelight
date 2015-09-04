@@ -180,6 +180,10 @@ public class MovieFragment extends Fragment {
         Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
         Palette.Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
 
+        // If fragment is detached from activity, the activity was probably destroyed and any use
+        // of activity resources will cause the app to crash. Hence, return and do nothing.
+        if (!isAdded()) return;
+
         Drawable starDrawable = getResources().getDrawable(R.drawable.ic_star_black_36dp);
 
         // User rating colors
