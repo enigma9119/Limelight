@@ -24,7 +24,7 @@ import butterknife.InjectView;
 
 
 /**
- * Home fragment that shows movie posters.
+ * Inner Home fragment that shows a list of movie posters.
  */
 public class HomeFragment extends Fragment {
 
@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
         View rootView;
 
         if (Utils.isOnline(getActivity())) {
-            rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            rootView = inflater.inflate(R.layout.fragment_home, container, false);
             ButterKnife.inject(this, rootView);
 
             // Restart loader so that when sort options are changed, new data is loaded

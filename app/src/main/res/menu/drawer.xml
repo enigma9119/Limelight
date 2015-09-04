@@ -10,7 +10,7 @@
             android:title="@string/home"/>
         <item
             android:id="@+id/favorites"
-            android:icon="@drawable/ic_star_black_36dp"
+            android:icon="@drawable/ic_favorite_red_500_24dp"
             android:title="@string/favorites"/>
 
     </group>
