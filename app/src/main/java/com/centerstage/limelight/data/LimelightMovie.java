@@ -13,7 +13,6 @@ import java.util.List;
 public class LimelightMovie implements Parcelable {
 
     Long _id;
-    Integer movieId;
     String movieTitle;
     String tagline;
     Date releaseDate;
@@ -28,20 +27,12 @@ public class LimelightMovie implements Parcelable {
     String backdropPath;
     String trailer;
 
-    private Long getId() {
+    public Long getMovieId() {
         return _id;
     }
 
-    private void setId(Long _id) {
-        this._id = _id;
-    }
-
-    public Integer getMovieId() {
-        return movieId;
-    }
-
     public void setMovieId(Integer movieId) {
-        this.movieId = movieId;
+        this._id = Long.valueOf(movieId);
     }
 
     public String getMovieTitle() {
@@ -159,7 +150,6 @@ public class LimelightMovie implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(this._id);
-        dest.writeValue(this.movieId);
         dest.writeString(this.movieTitle);
         dest.writeString(this.tagline);
         dest.writeLong(releaseDate != null ? releaseDate.getTime() : -1);
@@ -177,7 +167,6 @@ public class LimelightMovie implements Parcelable {
 
     protected LimelightMovie(Parcel in) {
         this._id = (Long) in.readValue(Long.class.getClassLoader());
-        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
         this.movieTitle = in.readString();
         this.tagline = in.readString();
         long tmpReleaseDate = in.readLong();

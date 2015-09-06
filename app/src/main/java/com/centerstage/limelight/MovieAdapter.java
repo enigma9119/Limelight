@@ -17,7 +17,6 @@ import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -30,7 +29,7 @@ import butterknife.InjectView;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     private List<Movie> mMovies;
-    private ArrayList<LimelightMovie> mLimelightMovies;
+    private List<LimelightMovie> mLimelightMovies;
     private Configuration mConfig;
 
     public static final Float PLACEHOLDER_TEXT_SIZE = 40f;
@@ -39,12 +38,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         mMovies = movies;
     }
 
+    public void updateLimelightAdapter(List<LimelightMovie> movies) {
+        mLimelightMovies = movies;
+    }
+
     public MovieAdapter(List<Movie> movies, Configuration configuration) {
         mMovies = movies;
         mConfig = configuration;
     }
 
-    public MovieAdapter(ArrayList<LimelightMovie> movies) {
+    public MovieAdapter(List<LimelightMovie> movies) {
         mLimelightMovies = movies;
     }
 

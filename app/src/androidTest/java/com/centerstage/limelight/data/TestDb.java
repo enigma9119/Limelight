@@ -21,6 +21,11 @@ public class TestDb extends AndroidTestCase {
         mContext.deleteDatabase(MovieProvider.DATABASE_NAME);
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        mContext.deleteDatabase(MovieProvider.DATABASE_NAME);
+    }
+
     public void testCreateDb() throws Throwable {
         final HashSet<String> tableNameHashSet = new HashSet<>();
         tableNameHashSet.add("LimelightMovie");

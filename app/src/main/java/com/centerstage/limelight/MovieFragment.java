@@ -1,10 +1,12 @@
 package com.centerstage.limelight;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.centerstage.limelight.data.LimelightMovie;
+import com.centerstage.limelight.data.MovieProvider;
 import com.centerstage.limelight.data.ParcelableReview;
 import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieLoader;
@@ -34,6 +37,9 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import nl.littlerobots.cupboard.tools.provider.UriHelper;
+
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 
 /**
@@ -111,12 +117,18 @@ public class MovieFragment extends Fragment {
     Videos mVideos;
     ArrayList<ParcelableReview> mReviews;
 
+    Uri mMovieUri;
+
     public MovieFragment() {
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        // Get the Content Uri for the LimelightMovie table in the database
+        UriHelper helper = UriHelper.with(MovieProvider.CONTENT_AUTHORITY);
+        mMovieUri = helper.getUri(LimelightMovie.class);
 
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
@@ -138,20 +150,33 @@ public class MovieFragment extends Fragment {
         if(intent != null) {
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
 
-                mTmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
+                Long id = intent.getLongExtra(Intent.EXTRA_TEXT, 0);
+                mTmdbId = id.intValue();
 
                 lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
                 lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
                 lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
+                lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
+
+                // If the movie exists in the database, it means it was added to favorites.
+                LimelightMovie movie = cupboard().withContext(getActivity()).get(ContentUris.withAppendedId(mMovieUri, id), LimelightMovie.class);
+                if (movie != null) {
+                    Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
+                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+                    mFavorites.setTag("favorites");
+                }
 
             } else if (intent.hasExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA)) {
 
                 mLimelightMovie = intent.getParcelableExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA);
                 buildMovieUI();
+
+                // These movies are already in the database, so initialize with favorites drawable filled in
+                Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
+                mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+                mFavorites.setTag("favorites");
             }
         }
-
-        lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
     }
 
     @Override
@@ -221,9 +246,15 @@ public class MovieFragment extends Fragment {
                 if (mFavorites.getTag().equals("favoritesOutline")) {
                     mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
                     mFavorites.setTag("favorites");
+
+                    // Insert this movie into the database
+                    cupboard().withContext(getActivity()).put(mMovieUri, mLimelightMovie);
                 } else {
                     mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesOutlineDrawable, null, null, null);
                     mFavorites.setTag("favoritesOutline");
+
+                    // Delete this movie from the database
+                    cupboard().withContext(getActivity()).delete(mMovieUri, mLimelightMovie);
                 }
             }
         });
