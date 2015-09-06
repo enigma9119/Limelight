@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.centerstage.limelight.data.ParcelableGenre;
-import com.centerstage.limelight.data.ParcelableLanguage;
 import com.centerstage.limelight.data.LimelightMovie;
 import com.centerstage.limelight.data.ParcelableReview;
 import com.centerstage.limelight.loaders.ConfigurationLoader;
@@ -27,11 +25,9 @@ import com.centerstage.limelight.loaders.MovieLoader;
 import com.centerstage.limelight.loaders.ReviewsLoader;
 import com.centerstage.limelight.loaders.VideosLoader;
 import com.uwetrottmann.tmdb.entities.Configuration;
-import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.Review;
 import com.uwetrottmann.tmdb.entities.ReviewResultsPage;
-import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 import com.uwetrottmann.tmdb.entities.Videos;
 
 import java.util.ArrayList;
@@ -53,7 +49,7 @@ public class MovieFragment extends Fragment {
     OnMovieDataFetchedListener mCallback;
 
     public interface OnMovieDataFetchedListener {
-        void onMovieDataFetched(LimelightMovie movie, Configuration configuration);
+        void onMovieDataFetched(LimelightMovie movie);
     }
 
     @InjectView(R.id.movie_title)
@@ -110,7 +106,8 @@ public class MovieFragment extends Fragment {
     Palette mPalette;
     private int mTmdbId;
     private Configuration mConfiguration;
-    LimelightMovie mMovie;
+    LimelightMovie mLimelightMovie;
+    Movie mMovie;
     Videos mVideos;
     ArrayList<ParcelableReview> mReviews;
 
@@ -136,15 +133,24 @@ public class MovieFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         Intent intent = getActivity().getIntent();
+        LoaderManager lm = getLoaderManager();
 
-        if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-            mTmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
+        if(intent != null) {
+            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+
+                mTmdbId = intent.getIntExtra(Intent.EXTRA_TEXT, 0);
+
+                lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
+                lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
+                lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
+
+            } else if (intent.hasExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA)) {
+
+                mLimelightMovie = intent.getParcelableExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA);
+                buildMovieUI();
+            }
         }
 
-        LoaderManager lm = getLoaderManager();
-        lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
-        lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
-        lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
         lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
     }
 
@@ -157,11 +163,11 @@ public class MovieFragment extends Fragment {
         mReviewsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMovie != null && mPalette != null) {
+                if (mLimelightMovie != null && mPalette != null) {
                     Intent intent = new Intent(getActivity(), ReviewActivity.class);
 
                     intent.putParcelableArrayListExtra(ReviewActivity.REVIEWS_EXTRA, mReviews);
-                    intent.putExtra(ReviewActivity.MOVIE_TITLE_EXTRA, mMovie.getMovieTitle());
+                    intent.putExtra(ReviewActivity.MOVIE_TITLE_EXTRA, mLimelightMovie.getMovieTitle());
                     intent.putExtra(ReviewActivity.VIBRANT_COLOR_EXTRA, mPalette.getVibrantColor(R.attr.colorPrimary));
                     intent.putExtra(ReviewActivity.DARK_VIBRANT_COLOR_EXTRA, mPalette.getDarkVibrantColor(R.attr.colorPrimaryDark));
 
@@ -226,39 +232,39 @@ public class MovieFragment extends Fragment {
     // Build the main UI for the detail screen
     private void buildMovieUI() {
         // Use a callback to handle using certain elements of the fetched data in activity
-        mCallback.onMovieDataFetched(mMovie, mConfiguration);
+        mCallback.onMovieDataFetched(mLimelightMovie);
 
         // Set the title and tagline
-        mMovieTitle.setText(mMovie.getMovieTitle());
-        if (mMovie.getTagline() != null && !mMovie.getTagline().isEmpty()) {
-            mTagline.setText(mMovie.getTagline());
+        mMovieTitle.setText(mLimelightMovie.getMovieTitle());
+        if (mLimelightMovie.getTagline() != null && !mLimelightMovie.getTagline().isEmpty()) {
+            mTagline.setText(mLimelightMovie.getTagline());
         } else {
             mTagline.setVisibility(View.GONE);
         }
 
         // Set the release date
-        String formattedDate = DateUtils.formatDateTime(getActivity(), mMovie.getReleaseDate().getTime(), 0);
+        String formattedDate = DateUtils.formatDateTime(getActivity(), mLimelightMovie.getReleaseDate().getTime(), 0);
         mReleaseDate.setText(formattedDate);
 
         // Set the genres and runtime
-        if (!mMovie.getGenres().isEmpty() && mMovie.getGenres().get(0) != null && !mMovie.getGenres().get(0).getName().isEmpty()) {
-                if (mMovie.getGenres().size() >= 2 && mMovie.getGenres().get(1) != null && !mMovie.getGenres().get(1).getName().isEmpty()) {
-                mGenres.setText(String.format("%s | %s", mMovie.getGenres().get(0).getName(), mMovie.getGenres().get(1).getName()));
+        if (!mLimelightMovie.getGenres().isEmpty() && mLimelightMovie.getGenres().get(0) != null && !mLimelightMovie.getGenres().get(0).getName().isEmpty()) {
+                if (mLimelightMovie.getGenres().size() >= 2 && mLimelightMovie.getGenres().get(1) != null && !mLimelightMovie.getGenres().get(1).getName().isEmpty()) {
+                mGenres.setText(String.format("%s | %s", mLimelightMovie.getGenres().get(0).getName(), mLimelightMovie.getGenres().get(1).getName()));
             } else {
-                mGenres.setText(mMovie.getGenres().get(0).getName());
+                mGenres.setText(mLimelightMovie.getGenres().get(0).getName());
             }
         }
 
-        if (mMovie.getRuntime() != null && mMovie.getRuntime() != 0) {
-            String runtimeText = String.format("%d minutes", mMovie.getRuntime());
+        if (mLimelightMovie.getRuntime() != null && mLimelightMovie.getRuntime() != 0) {
+            String runtimeText = String.format("%d minutes", mLimelightMovie.getRuntime());
             mRuntime.setText(runtimeText);
         }
 
         // Set the user rating
-        if (mMovie.getUserRating() != null && mMovie.getUserRating() != 0) {
-            mUserRating.setText(mMovie.getUserRating().toString());
-            if (mMovie.getNumRatings() != null && mMovie.getNumRatings() != 0) {
-                mUserRatingCount.setText(Integer.toString(mMovie.getNumRatings()));
+        if (mLimelightMovie.getUserRating() != null && mLimelightMovie.getUserRating() != 0) {
+            mUserRating.setText(mLimelightMovie.getUserRating().toString());
+            if (mLimelightMovie.getNumRatings() != null && mLimelightMovie.getNumRatings() != 0) {
+                mUserRatingCount.setText(Integer.toString(mLimelightMovie.getNumRatings()));
             } else {
                 mUserRatingCount.setVisibility(View.GONE);
                 mRatingsText.setVisibility(View.GONE);
@@ -267,71 +273,20 @@ public class MovieFragment extends Fragment {
             mUserRatingCardView.setVisibility(View.GONE);
         }
 
-        mSynopsis.setText(mMovie.getSynopsis());
+        mSynopsis.setText(mLimelightMovie.getSynopsis());
 
         // Details card
-        if (!mMovie.getLanguages().isEmpty() && mMovie.getLanguages().get(0) != null) {
-            mLanguage.setText(mMovie.getLanguages().get(0).getName());
+        if (!mLimelightMovie.getLanguages().isEmpty() && mLimelightMovie.getLanguages().get(0) != null) {
+            mLanguage.setText(mLimelightMovie.getLanguages().get(0).getName());
         } else {
             mLanguage.setText("-");
         }
 
-        if (mMovie.getBudget() != null && mMovie.getBudget() != 0) {
-            String budgetText = String.format("$%d", mMovie.getBudget());
+        if (mLimelightMovie.getBudget() != null && mLimelightMovie.getBudget() != 0) {
+            String budgetText = String.format("$%d", mLimelightMovie.getBudget());
             mBudget.setText(budgetText);
         } else {
             mBudget.setText("-");
-        }
-    }
-
-    // Initialize the parcelable Limelight movie object
-    void initLimelightMovie(Movie movie) {
-        mMovie = new LimelightMovie();
-        mMovie.setMovieId(movie.id);
-        mMovie.setMovieTitle(movie.original_title);
-        mMovie.setTagline(movie.tagline);
-        mMovie.setReleaseDate(movie.release_date);
-
-        if (movie.genres != null) {
-            ArrayList<ParcelableGenre> parcelableGenres = new ArrayList<>(movie.genres.size());
-
-            for (Genre genre : movie.genres) {
-                ParcelableGenre parcelableGenre = new ParcelableGenre();
-                parcelableGenre.setId(genre.id);
-                parcelableGenre.setName(genre.name);
-
-                parcelableGenres.add(parcelableGenre);
-            }
-
-            mMovie.setGenres(parcelableGenres);
-        }
-
-        mMovie.setRuntime(movie.runtime);
-        mMovie.setUserRating(movie.vote_average);
-        mMovie.setNumRatings(movie.vote_count);
-        mMovie.setSynopsis(movie.overview);
-
-        if (movie.spoken_languages != null) {
-            ArrayList<ParcelableLanguage> parcelableLanguages = new ArrayList<>(movie.spoken_languages.size());
-
-            for (SpokenLanguage spokenLanguage : movie.spoken_languages) {
-                ParcelableLanguage parcelableLanguage = new ParcelableLanguage();
-                parcelableLanguage.setIso_639_1(spokenLanguage.iso_639_1);
-                parcelableLanguage.setName(spokenLanguage.name);
-
-                parcelableLanguages.add(parcelableLanguage);
-            }
-
-            mMovie.setLanguages(parcelableLanguages);
-        }
-
-        mMovie.setBudget(movie.budget);
-        mMovie.setBackdropPath(movie.backdrop_path);
-
-        if (mVideos != null && mVideos.results != null && !mVideos.results.isEmpty()) {
-            final String youtubeBaseUrl = "https://www.youtube.com/watch?v=";
-            String trailer = youtubeBaseUrl + mVideos.results.get(0).key;
-            mMovie.setTrailer(trailer);
         }
     }
 
@@ -382,8 +337,9 @@ public class MovieFragment extends Fragment {
 
         @Override
         public void onLoadFinished(Loader<Movie> loader, Movie data) {
-            initLimelightMovie(data);
-            if (mMovie != null && mConfiguration != null) {
+            mMovie = data;
+            if (mMovie != null && mConfiguration != null && mVideos != null) {
+                mLimelightMovie = Utils.convertMovieToLimelightMovie(data, mConfiguration, mVideos);
                 buildMovieUI();
             }
         }
@@ -407,7 +363,8 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
             mConfiguration = data;
-            if (mMovie != null && mConfiguration != null) {
+            if (mMovie != null && mConfiguration != null && mVideos != null) {
+                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, data, mVideos);
                 buildMovieUI();
             }
         }
@@ -431,7 +388,10 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Videos> loader, Videos data) {
             mVideos = data;
-            getLoaderManager().destroyLoader(VIDEOS_LOADER);
+            if (mMovie != null && mConfiguration != null && mVideos != null) {
+                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, data);
+                buildMovieUI();
+            }
         }
 
         @Override

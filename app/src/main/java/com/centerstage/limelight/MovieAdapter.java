@@ -11,11 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Picasso;
 import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Movie;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -28,6 +30,7 @@ import butterknife.InjectView;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     private List<Movie> mMovies;
+    private ArrayList<LimelightMovie> mLimelightMovies;
     private Configuration mConfig;
 
     public static final Float PLACEHOLDER_TEXT_SIZE = 40f;
@@ -41,6 +44,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         mConfig = configuration;
     }
 
+    public MovieAdapter(ArrayList<LimelightMovie> movies) {
+        mLimelightMovies = movies;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -51,19 +58,29 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final Movie movie = mMovies.get(position);
+        // If data passed to adapter contains Movie objects, convert to parcelable LimelightMovie.
+        // If data passed to adapter contains LimelightMovie objects, directly use it.
+        LimelightMovie temp;
+        if (mMovies != null) {
+            Movie movie = mMovies.get(position);
+            temp = new LimelightMovie();
+
+            // Initialize only the values that are needed
+            String completePosterPath = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;
+            temp.setMovieId(movie.id);
+            temp.setMovieTitle(movie.original_title);
+            temp.setPosterPath(completePosterPath);
+        } else {
+            temp = mLimelightMovies.get(position);
+        }
+        final LimelightMovie limelightMovie = temp;
         final Context context = holder.mMoviePoster.getContext();
 
-        // Purpose of configuration data is to load common elements that don't change frequently separately
-        // to keep the actual API responses as light as possible
-        String complete_poster_path = mConfig.images.base_url +
-                mConfig.images.poster_sizes.get(3) +
-                movie.poster_path;
-        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, movie.original_title,
+        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, limelightMovie.getMovieTitle(),
                 PLACEHOLDER_TEXT_SIZE, Color.BLACK,
                 holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
 
-        Picasso.with(context).load(complete_poster_path)
+        Picasso.with(context).load(limelightMovie.getPosterPath())
                 .placeholder(placeholderText)
                 .into(holder.mMoviePoster);
 
@@ -73,9 +90,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 // Only handle the click if movie poster has finished loading
                 if (holder.mMoviePoster.getDrawable() != null) {
                     Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                    intent.putExtra(Intent.EXTRA_TEXT, movie.id);
 
-                    if (movie.poster_path != null) {
+                    // If movie data is coming from the database, pass the parcelable movie as an extra.
+                    // If movie data needs to be loaded in MovieFragment, pass the movie id as an extra.
+                    if (mLimelightMovies != null) {
+                        intent.putExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA, limelightMovie);
+                    } else {
+                        intent.putExtra(Intent.EXTRA_TEXT, limelightMovie.getMovieId());
+                    }
+
+                    if (limelightMovie.getPosterPath() != null) {
                         // Convert ImageView (movie poster) to byte array
                         Bitmap posterImageBitmap = ((BitmapDrawable) holder.mMoviePoster.getDrawable()).getBitmap();
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -96,6 +120,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public int getItemCount() {
         if (mMovies != null)
             return mMovies.size();
+        else if (mLimelightMovies != null)
+            return mLimelightMovies.size();
         else
             return 0;
     }

@@ -24,6 +24,7 @@ public class LimelightMovie implements Parcelable {
     String synopsis;
     List<ParcelableLanguage> languages;
     Integer budget;
+    String posterPath;
     String backdropPath;
     String trailer;
 
@@ -123,6 +124,14 @@ public class LimelightMovie implements Parcelable {
         this.budget = budget;
     }
 
+    public String getPosterPath() {
+        return posterPath;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+
     public String getBackdropPath() {
         return backdropPath;
     }
@@ -161,6 +170,7 @@ public class LimelightMovie implements Parcelable {
         dest.writeString(this.synopsis);
         dest.writeTypedList(languages);
         dest.writeValue(this.budget);
+        dest.writeString(this.posterPath);
         dest.writeString(this.backdropPath);
         dest.writeString(this.trailer);
     }
@@ -179,6 +189,7 @@ public class LimelightMovie implements Parcelable {
         this.synopsis = in.readString();
         this.languages = in.createTypedArrayList(ParcelableLanguage.CREATOR);
         this.budget = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.posterPath = in.readString();
         this.backdropPath = in.readString();
         this.trailer = in.readString();
     }

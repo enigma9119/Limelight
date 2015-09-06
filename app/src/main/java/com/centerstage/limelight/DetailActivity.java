@@ -24,13 +24,14 @@ import android.widget.Toast;
 import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.uwetrottmann.tmdb.entities.Configuration;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
 public class DetailActivity extends AppCompatActivity implements MovieFragment.OnMovieDataFetchedListener {
+
+    public static final String PARCELABLE_MOVIE_EXTRA = "com.centerstage.limelight.movie";
 
     @InjectView(R.id.tool_bar)
     Toolbar mToolbar;
@@ -93,15 +94,11 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     }
 
     @Override
-    public void onMovieDataFetched(final LimelightMovie movie, final Configuration configuration) {
+    public void onMovieDataFetched(final LimelightMovie movie) {
         final MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
 
         // Load the backdrop image
-        String complete_backdrop_path = configuration.images.base_url +
-                configuration.images.backdrop_sizes.get(1) +
-                movie.getBackdropPath();
-
-        Picasso.with(this).load(complete_backdrop_path)
+        Picasso.with(this).load(movie.getBackdropPath())
                 .error(R.drawable.backdrop_placeholder)
                 .into(mBackdropImage, new Callback() {
                     @Override
@@ -145,8 +142,6 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
                 if (movie.getTrailer() != null) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(movie.getTrailer()));
                     startActivity(intent);
-                } else if(fragment.getLoaderManager().getLoader(MovieFragment.VIDEOS_LOADER) != null) {
-                    Toast.makeText(getApplicationContext(), R.string.loading_trailer, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.no_trailer_found, Toast.LENGTH_SHORT).show();
                 }
