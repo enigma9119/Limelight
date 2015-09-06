@@ -26,6 +26,7 @@ public class LimelightMovie implements Parcelable {
     String posterPath;
     String backdropPath;
     String trailer;
+    List<ParcelableReview> reviews;
 
     public Long getMovieId() {
         return _id;
@@ -139,6 +140,14 @@ public class LimelightMovie implements Parcelable {
         this.trailer = trailer;
     }
 
+    public List<ParcelableReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<ParcelableReview> reviews) {
+        this.reviews = reviews;
+    }
+
     public LimelightMovie() {
     }
 
@@ -163,6 +172,7 @@ public class LimelightMovie implements Parcelable {
         dest.writeString(this.posterPath);
         dest.writeString(this.backdropPath);
         dest.writeString(this.trailer);
+        dest.writeTypedList(reviews);
     }
 
     protected LimelightMovie(Parcel in) {
@@ -181,6 +191,7 @@ public class LimelightMovie implements Parcelable {
         this.posterPath = in.readString();
         this.backdropPath = in.readString();
         this.trailer = in.readString();
+        this.reviews = in.createTypedArrayList(ParcelableReview.CREATOR);
     }
 
     public static final Creator<LimelightMovie> CREATOR = new Creator<LimelightMovie>() {

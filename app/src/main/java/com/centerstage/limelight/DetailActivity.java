@@ -49,7 +49,9 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Utils.isOnline(this)) {
+
+        // Load the details UI if online or if movie data is stored in database
+        if (Utils.isOnline(this) || (getIntent() != null && getIntent().hasExtra(PARCELABLE_MOVIE_EXTRA))) {
             setContentView(R.layout.activity_detail);
             ButterKnife.inject(this);
 

@@ -20,8 +20,6 @@ public class ReviewActivity extends AppCompatActivity {
     @InjectView(R.id.tool_bar)
     Toolbar mToolbar;
 
-    int mTmdbId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +42,11 @@ public class ReviewActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mToolbar.setBackgroundColor(vibrantColor);
                 getWindow().setStatusBarColor(darkVibrantColor);
+            }
+        } else {
+            // Set default status bar color to app theme primary dark color
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.material_deep_purple_700));
             }
         }
 

@@ -170,6 +170,7 @@ public class MovieFragment extends Fragment {
 
                 mLimelightMovie = intent.getParcelableExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA);
                 buildMovieUI();
+                buildReviewUI();
 
                 // These movies are already in the database, so initialize with favorites drawable filled in
                 Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
@@ -185,18 +186,47 @@ public class MovieFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         ButterKnife.inject(this, rootView);
 
+        // Reviews CardView
         mReviewsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLimelightMovie != null && mPalette != null) {
+                if (mLimelightMovie != null) {
                     Intent intent = new Intent(getActivity(), ReviewActivity.class);
 
-                    intent.putParcelableArrayListExtra(ReviewActivity.REVIEWS_EXTRA, mReviews);
+                    intent.putParcelableArrayListExtra(ReviewActivity.REVIEWS_EXTRA, new ArrayList<>(mLimelightMovie.getReviews()));
                     intent.putExtra(ReviewActivity.MOVIE_TITLE_EXTRA, mLimelightMovie.getMovieTitle());
-                    intent.putExtra(ReviewActivity.VIBRANT_COLOR_EXTRA, mPalette.getVibrantColor(R.attr.colorPrimary));
-                    intent.putExtra(ReviewActivity.DARK_VIBRANT_COLOR_EXTRA, mPalette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+
+                    if (mPalette != null) {
+                        intent.putExtra(ReviewActivity.VIBRANT_COLOR_EXTRA, mPalette.getVibrantColor(R.attr.colorPrimary));
+                        intent.putExtra(ReviewActivity.DARK_VIBRANT_COLOR_EXTRA, mPalette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+                    }
 
                     startActivity(intent);
+                }
+            }
+        });
+
+        // Favorites button
+        mFavoritesCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLimelightMovie != null) {
+                    Drawable favoritesOutlineDrawable = getResources().getDrawable(R.drawable.ic_favorite_outline_black_24dp);
+                    Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
+
+                    if (mFavorites.getTag().equals("favoritesOutline")) {
+                        mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+                        mFavorites.setTag("favorites");
+
+                        // Insert this movie into the database
+                        cupboard().withContext(getActivity()).put(mMovieUri, mLimelightMovie);
+                    } else {
+                        mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesOutlineDrawable, null, null, null);
+                        mFavorites.setTag("favoritesOutline");
+
+                        // Delete this movie from the database
+                        cupboard().withContext(getActivity()).delete(mMovieUri, mLimelightMovie);
+                    }
                 }
             }
         });
@@ -235,29 +265,6 @@ public class MovieFragment extends Fragment {
             mGenres.setTextColor(darkVibrantSwatch.getBodyTextColor());
             mRuntime.setTextColor(darkVibrantSwatch.getBodyTextColor());
         }
-
-        // Favorites button
-        mFavoritesCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Drawable favoritesOutlineDrawable = getResources().getDrawable(R.drawable.ic_favorite_outline_black_24dp);
-                Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
-
-                if (mFavorites.getTag().equals("favoritesOutline")) {
-                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
-                    mFavorites.setTag("favorites");
-
-                    // Insert this movie into the database
-                    cupboard().withContext(getActivity()).put(mMovieUri, mLimelightMovie);
-                } else {
-                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesOutlineDrawable, null, null, null);
-                    mFavorites.setTag("favoritesOutline");
-
-                    // Delete this movie from the database
-                    cupboard().withContext(getActivity()).delete(mMovieUri, mLimelightMovie);
-                }
-            }
-        });
     }
 
     // Build the main UI for the detail screen
@@ -343,9 +350,9 @@ public class MovieFragment extends Fragment {
 
     // Build the UI for the single review on the detail screen
     void buildReviewUI() {
-        if (!mReviews.isEmpty()) {
-            mReviewAuthor.setText(mReviews.get(0).getAuthor());
-            mReview.setText(mReviews.get(0).getContent());
+        if (!mLimelightMovie.getReviews().isEmpty()) {
+            mReviewAuthor.setText(mLimelightMovie.getReviews().get(0).getAuthor());
+            mReview.setText(mLimelightMovie.getReviews().get(0).getContent());
         } else {
             mAuthorText.setVisibility(View.GONE);
             mMoreText.setVisibility(View.GONE);
@@ -369,9 +376,11 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Movie> loader, Movie data) {
             mMovie = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null) {
+            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
                 mLimelightMovie = Utils.convertMovieToLimelightMovie(data, mConfiguration, mVideos);
+                mLimelightMovie.setReviews(mReviews);
                 buildMovieUI();
+                buildReviewUI();
             }
         }
 
@@ -394,9 +403,11 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
             mConfiguration = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null) {
+            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
                 mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, data, mVideos);
+                mLimelightMovie.setReviews(mReviews);
                 buildMovieUI();
+                buildReviewUI();
             }
         }
 
@@ -419,9 +430,11 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Videos> loader, Videos data) {
             mVideos = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null) {
+            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
                 mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, data);
+                mLimelightMovie.setReviews(mReviews);
                 buildMovieUI();
+                buildReviewUI();
             }
         }
 
@@ -444,7 +457,12 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<ReviewResultsPage> loader, ReviewResultsPage data) {
             initParcelableReviews(data);
-            buildReviewUI();
+            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
+                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, mVideos);
+                mLimelightMovie.setReviews(mReviews);
+                buildMovieUI();
+                buildReviewUI();
+            }
         }
 
         @Override
