@@ -72,7 +72,7 @@ public class HomeTabsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getActivity().getMenuInflater().inflate(R.menu.menu_home, menu);
+        getActivity().getMenuInflater().inflate(R.menu.menu_home_fragment, menu);
 
         // Restore preferences. Used to set initial checked state for sort mode.
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS, 0);

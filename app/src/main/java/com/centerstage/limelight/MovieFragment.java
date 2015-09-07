@@ -11,10 +11,15 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -118,8 +123,27 @@ public class MovieFragment extends Fragment {
     ArrayList<ParcelableReview> mReviews;
 
     Uri mMovieUri;
+    ShareActionProvider mShareActionProvider;
 
     public MovieFragment() {
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getActivity().getMenuInflater().inflate(R.menu.menu_movie_fragment, menu);
+
+        MenuItem item = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+    }
+
+    // Create an intent to share the first trailer URL of the movie
+    private Intent createShareTrailerIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mLimelightMovie.getTrailer());
+        return shareIntent;
     }
 
     @Override
@@ -185,6 +209,7 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         ButterKnife.inject(this, rootView);
+        setHasOptionsMenu(true);
 
         // Reviews CardView
         mReviewsCardView.setOnClickListener(new View.OnClickListener() {
@@ -362,6 +387,20 @@ public class MovieFragment extends Fragment {
         }
     }
 
+    void onLoadFinishedCommonSetup() {
+        if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
+            mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, mVideos);
+            mLimelightMovie.setReviews(mReviews);
+            buildMovieUI();
+            buildReviewUI();
+
+            // Attach an intent to the ShareActionProvider
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareTrailerIntent());
+            }
+        }
+    }
+
 
     /**
      * Loader callbacks for a single movie.
@@ -376,12 +415,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Movie> loader, Movie data) {
             mMovie = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
-                mLimelightMovie = Utils.convertMovieToLimelightMovie(data, mConfiguration, mVideos);
-                mLimelightMovie.setReviews(mReviews);
-                buildMovieUI();
-                buildReviewUI();
-            }
+            onLoadFinishedCommonSetup();
         }
 
         @Override
@@ -403,12 +437,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Configuration> loader, Configuration data) {
             mConfiguration = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
-                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, data, mVideos);
-                mLimelightMovie.setReviews(mReviews);
-                buildMovieUI();
-                buildReviewUI();
-            }
+            onLoadFinishedCommonSetup();
         }
 
         @Override
@@ -430,12 +459,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Videos> loader, Videos data) {
             mVideos = data;
-            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
-                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, data);
-                mLimelightMovie.setReviews(mReviews);
-                buildMovieUI();
-                buildReviewUI();
-            }
+            onLoadFinishedCommonSetup();
         }
 
         @Override
@@ -457,12 +481,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<ReviewResultsPage> loader, ReviewResultsPage data) {
             initParcelableReviews(data);
-            if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
-                mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, mVideos);
-                mLimelightMovie.setReviews(mReviews);
-                buildMovieUI();
-                buildReviewUI();
-            }
+            onLoadFinishedCommonSetup();
         }
 
         @Override

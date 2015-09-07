@@ -12,6 +12,7 @@
     <string name="action_sort">Sort By</string>
     <string name="sort_most_popular">Most Popular</string>
     <string name="sort_highest_rated">Highest Rated</string>
+    <string name="action_share">Share</string>
     <string name="no_network">No Internet Connection!</string>
 
     <string name="maximum_user_rating">/ 10</string>
