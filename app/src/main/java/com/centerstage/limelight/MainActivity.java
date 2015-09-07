@@ -30,11 +30,14 @@ import com.centerstage.limelight.data.LimelightMovie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class MainActivity extends AppCompatActivity implements HomeTabsFragment.onViewPagerCreatedListener, MovieFragment.OnMovieDataFetchedListener {
+public class MainActivity extends AppCompatActivity implements HomeTabsFragment.onViewPagerCreatedListener,
+        MovieFragment.OnMovieDataFetchedListener, MovieAdapter.OnItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
     ImageView mBackdropImage;
     FloatingActionButton mFab;
 
-    public static boolean mTwoPane;
+    public boolean mTwoPane;
 
     @Override
     public void onViewPagerCreated(ViewPager viewPager) {
@@ -193,5 +196,48 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
                 }
             }
         });
+    }
+
+
+    @Override
+    public void onItemClick(List<LimelightMovie> databaseMovies, LimelightMovie item, ImageView poster) {
+        if (!mTwoPane) {
+            // Single Pane Layout
+            Intent intent = new Intent(this, DetailActivity.class);
+
+            // If movie data is coming from the database, pass the parcelable movie as an extra.
+            // If movie data needs to be loaded in MovieFragment, pass the movie id as an extra.
+            if (databaseMovies != null) {
+                intent.putExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA, item);
+            } else {
+                intent.putExtra(Intent.EXTRA_TEXT, item.getMovieId());
+            }
+
+            if (item.getPosterPath() != null) {
+                // Convert ImageView (movie poster) to byte array
+                byte[] byteArray = Utils.convertImageViewToByteArray(poster);
+
+                // Pass this byte array into the intent
+                intent.putExtra(Intent.EXTRA_STREAM, byteArray);
+            }
+
+            startActivity(intent);
+
+        } else {
+            // Two Pane Layout
+            Bundle args = new Bundle();
+
+            // If movie data is coming from the database, pass the parcelable movie as an extra.
+            // If movie data needs to be loaded in MovieFragment, pass the movie id as an extra.
+            if (databaseMovies != null) {
+                args.putParcelable(DetailActivity.PARCELABLE_MOVIE_EXTRA, item);
+            } else {
+                args.putLong(Intent.EXTRA_TEXT, item.getMovieId());
+            }
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_details_container, MovieFragment.newInstance(args))
+                    .commit();
+        }
     }
 }

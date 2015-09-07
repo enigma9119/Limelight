@@ -238,9 +238,10 @@ public class MovieFragment extends Fragment {
         ButterKnife.inject(this, rootView);
         setHasOptionsMenu(true);
 
+        // The parent container activity is MainActivity only on tablets when using the Two Pane Layout.
         // For the Two Pane Layout, the movie poster already exists in the left pane.
         // Hence, the invisible view that keeps the movie title aligned to the right can be removed.
-        if (MainActivity.mTwoPane) {
+        if (getActivity() instanceof MainActivity) {
             mInvisibleView.setVisibility(View.GONE);
         }
 
