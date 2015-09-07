@@ -10,9 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -33,12 +31,10 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
     public static final String PARCELABLE_MOVIE_EXTRA = "com.centerstage.limelight.movie";
 
-    @InjectView(R.id.tool_bar)
+    @InjectView(R.id.movie_tool_bar)
     Toolbar mToolbar;
     @InjectView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
-    @InjectView(R.id.app_bar)
-    AppBarLayout mAppBar;
     @InjectView(R.id.movie_backdrop)
     ImageView mBackdropImage;
     @InjectView(R.id.movie_poster)
@@ -57,16 +53,11 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
             setSupportActionBar(mToolbar);
 
-            // Make backdrop image height = (1/2.6) of parent view height for portrait orientation
-            // and (2/3) of parent view height for landscape orientation.
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mAppBar.getLayoutParams();
-            float imageHeight;
-            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
-                imageHeight = getResources().getDisplayMetrics().heightPixels / (float) 2.6;
-            } else {
-                imageHeight = getResources().getDisplayMetrics().heightPixels * (float) (2.0 / 3.0);
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_details_container, new MovieFragment())
+                        .commit();
             }
-            lp.height = (int) imageHeight;
 
             // Make status bar color transparent
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -97,7 +88,7 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
     @Override
     public void onMovieDataFetched(final LimelightMovie movie) {
-        final MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_fragment);
+        final MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_container);
 
         // Load the backdrop image
         Picasso.with(this).load(movie.getBackdropPath())

@@ -63,6 +63,8 @@ public class MovieFragment extends Fragment {
         void onMovieDataFetched(LimelightMovie movie);
     }
 
+    @InjectView(R.id.invisible_view)
+    View mInvisibleView;
     @InjectView(R.id.movie_title)
     TextView mMovieTitle;
     @InjectView(R.id.tagline)
@@ -125,7 +127,10 @@ public class MovieFragment extends Fragment {
     Uri mMovieUri;
     ShareActionProvider mShareActionProvider;
 
-    public MovieFragment() {
+    public static MovieFragment newInstance(Bundle args) {
+        MovieFragment fragment = new MovieFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -169,39 +174,61 @@ public class MovieFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         Intent intent = getActivity().getIntent();
-        LoaderManager lm = getLoaderManager();
+        Bundle bundle = getArguments();
 
         if(intent != null) {
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
 
                 Long id = intent.getLongExtra(Intent.EXTRA_TEXT, 0);
-                mTmdbId = id.intValue();
-
-                lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
-                lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
-                lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
-                lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
-
-                // If the movie exists in the database, it means it was added to favorites.
-                LimelightMovie movie = cupboard().withContext(getActivity()).get(ContentUris.withAppendedId(mMovieUri, id), LimelightMovie.class);
-                if (movie != null) {
-                    Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
-                    mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
-                    mFavorites.setTag("favorites");
-                }
+                setupForNetworkCall(id);
 
             } else if (intent.hasExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA)) {
 
                 mLimelightMovie = intent.getParcelableExtra(DetailActivity.PARCELABLE_MOVIE_EXTRA);
-                buildMovieUI();
-                buildReviewUI();
-
-                // These movies are already in the database, so initialize with favorites drawable filled in
-                Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
-                mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
-                mFavorites.setTag("favorites");
+                setupForDatabaseMovie();
             }
         }
+
+        if (bundle != null) {
+            if (bundle.containsKey(Intent.EXTRA_TEXT)) {
+
+                Long id = bundle.getLong(Intent.EXTRA_TEXT, 0);
+                setupForNetworkCall(id);
+
+            } else if (bundle.containsKey(DetailActivity.PARCELABLE_MOVIE_EXTRA)) {
+
+                mLimelightMovie = bundle.getParcelable(DetailActivity.PARCELABLE_MOVIE_EXTRA);
+                setupForDatabaseMovie();
+            }
+        }
+    }
+
+    private void setupForNetworkCall(Long id) {
+        mTmdbId = id.intValue();
+
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(CONFIG_LOADER, null, new ConfigurationLoaderCallbacks());
+        lm.initLoader(MOVIE_LOADER, null, new MovieLoaderCallbacks());
+        lm.initLoader(VIDEOS_LOADER, null, new VideosLoaderCallbacks());
+        lm.initLoader(REVIEWS_LOADER, null, new ReviewsLoaderCallbacks());
+
+        // If the movie exists in the database, it means it was added to favorites.
+        LimelightMovie movie = cupboard().withContext(getActivity()).get(ContentUris.withAppendedId(mMovieUri, id), LimelightMovie.class);
+        if (movie != null) {
+            Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
+            mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+            mFavorites.setTag("favorites");
+        }
+    }
+
+    private void setupForDatabaseMovie() {
+        buildMovieUI();
+        buildReviewUI();
+
+        // These movies are already in the database, so initialize with favorites drawable filled in
+        Drawable favoritesDrawable = getResources().getDrawable(R.drawable.ic_favorite_red_500_24dp);
+        mFavorites.setCompoundDrawablesWithIntrinsicBounds(favoritesDrawable, null, null, null);
+        mFavorites.setTag("favorites");
     }
 
     @Override
@@ -210,6 +237,12 @@ public class MovieFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         ButterKnife.inject(this, rootView);
         setHasOptionsMenu(true);
+
+        // For the Two Pane Layout, the movie poster already exists in the left pane.
+        // Hence, the invisible view that keeps the movie title aligned to the right can be removed.
+        if (MainActivity.mTwoPane) {
+            mInvisibleView.setVisibility(View.GONE);
+        }
 
         // Reviews CardView
         mReviewsCardView.setOnClickListener(new View.OnClickListener() {

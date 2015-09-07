@@ -1,6 +1,5 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -30,7 +29,7 @@
                 android:layout_height="match_parent" />
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/tool_bar"
+                android:id="@+id/movie_tool_bar"
                 android:background="@android:color/transparent"
                 app:layout_collapseMode="pin"
                 style="@style/ToolBar" />
@@ -39,10 +38,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <fragment android:id="@+id/movie_fragment"
+    <FrameLayout
+        android:id="@+id/movie_details_container"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:name="com.centerstage.limelight.MovieFragment"
-        tools:layout="@layout/fragment_movie"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.widget.ImageView;
 
 import com.centerstage.limelight.data.LimelightMovie;
 import com.centerstage.limelight.data.ParcelableGenre;
@@ -19,6 +20,7 @@ import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
 import com.uwetrottmann.tmdb.entities.Videos;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -116,5 +118,13 @@ public class Utils {
         }
 
         return limelightMovie;
+    }
+
+    // Convert ImageView to a byte array
+    public static byte[] convertImageViewToByteArray(ImageView imageView) {
+        Bitmap imageBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
     }
 }

@@ -17,7 +17,7 @@ public class ReviewActivity extends AppCompatActivity {
     public static final String VIBRANT_COLOR_EXTRA = "com.centerstage.limelight.vibrant";
     public static final String DARK_VIBRANT_COLOR_EXTRA = "com.centerstage.limelight.dark_vibrant";
 
-    @InjectView(R.id.tool_bar)
+    @InjectView(R.id.review_tool_bar)
     Toolbar mToolbar;
 
     @Override

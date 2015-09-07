@@ -1,6 +1,15 @@
 package com.centerstage.limelight;
 
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -9,23 +18,30 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.centerstage.limelight.data.LimelightMovie;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class MainActivity extends AppCompatActivity implements HomeTabsFragment.onViewPagerCreatedListener {
+public class MainActivity extends AppCompatActivity implements HomeTabsFragment.onViewPagerCreatedListener, MovieFragment.OnMovieDataFetchedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String PREFS = "Prefs";
     public static final TmdbService sTmdbService = new TmdbService();
 
-    @InjectView(R.id.tool_bar)
+    @InjectView(R.id.main_tool_bar)
     Toolbar mToolbar;
     @InjectView(R.id.sliding_tabs)
     TabLayout mTabLayout;
@@ -33,6 +49,12 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
     NavigationView mNavigationView;
     @InjectView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+
+    CollapsingToolbarLayout mCollapsingToolbar;
+    ImageView mBackdropImage;
+    FloatingActionButton mFab;
+
+    public static boolean mTwoPane;
 
     @Override
     public void onViewPagerCreated(ViewPager viewPager) {
@@ -45,9 +67,26 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
+        final FragmentManager fm = getSupportFragmentManager();
         setSupportActionBar(mToolbar);
 
-        final FragmentManager fm = getSupportFragmentManager();
+        if (findViewById(R.id.movie_details_container) != null) {
+            // Details container is only present in large screen layouts. Hence, activity must be in two-pane mode.
+            mTwoPane = true;
+
+            // Initialize the UI elements from details screen
+            mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+            mBackdropImage = (ImageView) findViewById(R.id.movie_backdrop);
+            mFab = (FloatingActionButton) findViewById(R.id.fab);
+
+            // Show the detail view on the right side
+            if (savedInstanceState == null) {
+                fm.beginTransaction().replace(R.id.movie_details_container, new MovieFragment()).commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
+
         Fragment fragment = fm.findFragmentById(R.id.container);
         if (fragment == null) {
             fm.beginTransaction().replace(R.id.container, new HomeTabsFragment()).commit();
@@ -97,5 +136,62 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
 
         // Display hamburger icon
         actionBarDrawerToggle.syncState();
+    }
+
+
+    @Override
+    public void onMovieDataFetched(final LimelightMovie movie) {
+        final MovieFragment fragment = (MovieFragment) getSupportFragmentManager().findFragmentById(R.id.movie_details_container);
+
+        // Load the backdrop image
+        Picasso.with(this).load(movie.getBackdropPath())
+                .error(R.drawable.backdrop_placeholder)
+                .into(mBackdropImage, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // Use Palette to generate colors derived from the backdrop image
+                        Bitmap backdropImageBitmap = ((BitmapDrawable)mBackdropImage.getDrawable()).getBitmap();
+                        Palette.from(backdropImageBitmap).generate(new Palette.PaletteAsyncListener() {
+                            @Override
+                            public void onGenerated(Palette palette) {
+                                mCollapsingToolbar.setContentScrimColor(palette.getVibrantColor(R.attr.colorPrimary));
+                                mCollapsingToolbar.setStatusBarScrimColor(palette.getDarkVibrantColor(R.attr.colorPrimaryDark));
+
+                                // Color the Floating Action Button
+                                if (palette.getVibrantSwatch() != null) {
+                                    Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp);
+                                    playDrawable.setColorFilter(palette.getVibrantSwatch().getBodyTextColor(), PorterDuff.Mode.SRC_IN);
+                                    mFab.setImageDrawable(playDrawable);
+
+                                    mFab.setBackgroundTintList(ColorStateList.valueOf(palette.getVibrantColor(R.attr.colorPrimary)));
+                                }
+
+                                // Send the palette to the movie fragment
+                                if (fragment != null) fragment.onPaletteGenerated(palette);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
+        // Set the title in the tool bar
+        mCollapsingToolbar.setTitle(movie.getMovieTitle());
+
+        // Play the movie trailer when play button is clicked
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (movie.getTrailer() != null) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(movie.getTrailer()));
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.no_trailer_found, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
