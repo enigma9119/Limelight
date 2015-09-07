@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
             mBackdropImage = (ImageView) findViewById(R.id.movie_backdrop);
             mFab = (FloatingActionButton) findViewById(R.id.fab);
 
-            // Show the detail view on the right side
+            // Initialize the detail view on the right side to an empty fragment
             if (savedInstanceState == null) {
-                fm.beginTransaction().replace(R.id.movie_details_container, new MovieFragment()).commit();
+                fm.beginTransaction().replace(R.id.movie_details_container, new EmptyFragment()).commit();
             }
         } else {
             mTwoPane = false;

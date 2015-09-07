@@ -33,5 +33,6 @@
     <string name="navigation_drawer_close">Navigation Drawer is Closed</string>
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
+    <string name="empty_fragment_text">Please, select a movie.</string>
 
 </resources>

@@ -106,7 +106,7 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    public void setupAdapter() {
+    private void setupAdapter() {
         if (getActivity() == null || mRecyclerView == null) return;
 
         if (!mMovies.isEmpty() && mConfiguration != null) {
