@@ -10,6 +10,10 @@
         <item name="android:statusBarColor" tools:ignore="NewApi">@android:color/transparent</item>
     </style>
 
+    <style name="MovieTheme" parent="AppTheme">
+        <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
     <style name="ToolBar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>

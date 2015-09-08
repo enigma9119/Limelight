@@ -128,6 +128,7 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
 
         // Set the title in the tool bar
         mCollapsingToolbar.setTitle(movie.getMovieTitle());
+        mCollapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(android.R.color.white));
 
         // Play the movie trailer when play button is clicked
         mFab.setOnClickListener(new View.OnClickListener() {
