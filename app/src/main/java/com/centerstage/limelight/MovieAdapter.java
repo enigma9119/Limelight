@@ -72,10 +72,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             temp = new LimelightMovie();
 
             // Initialize only the values that are needed
-            String completePosterPath = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;
+            if (movie.poster_path != null && !movie.poster_path.isEmpty()) {
+                String completePosterPath = mConfig.images.base_url + mConfig.images.poster_sizes.get(3) + movie.poster_path;
+                temp.setPosterPath(completePosterPath);
+            }
             temp.setMovieId(movie.id);
             temp.setMovieTitle(movie.original_title);
-            temp.setPosterPath(completePosterPath);
         } else {
             temp = mLimelightMovies.get(position);
         }

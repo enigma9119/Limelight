@@ -76,7 +76,8 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
             if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
                 byte[] byteArray = intent.getByteArrayExtra(Intent.EXTRA_STREAM);
                 Bitmap posterImageBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                mMoviePoster.setImageBitmap(posterImageBitmap);
+                Bitmap scaledPosterImageBitmap = Bitmap.createScaledBitmap(posterImageBitmap, 342, 513, false);
+                mMoviePoster.setImageBitmap(scaledPosterImageBitmap);
             } else {
                 mMoviePoster.setImageDrawable(getResources().getDrawable(R.drawable.movie_poster_placeholder));
             }

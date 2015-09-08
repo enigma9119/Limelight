@@ -104,11 +104,15 @@ public class Utils {
 
         // Purpose of configuration data is to load common elements that don't change frequently
         // separately to keep the actual API responses as light as possible
-        String completePosterPath = config.images.base_url + config.images.poster_sizes.get(3) + movie.poster_path;
-        limelightMovie.setPosterPath(completePosterPath);
+        if (movie.poster_path != null && !movie.poster_path.isEmpty()) {
+            String completePosterPath = config.images.base_url + config.images.poster_sizes.get(3) + movie.poster_path;
+            limelightMovie.setPosterPath(completePosterPath);
+        }
 
-        String completeBackdropPath = config.images.base_url + config.images.backdrop_sizes.get(1) + movie.backdrop_path;
-        limelightMovie.setBackdropPath(completeBackdropPath);
+        if (movie.backdrop_path != null && !movie.backdrop_path.isEmpty()) {
+            String completeBackdropPath = config.images.base_url + config.images.backdrop_sizes.get(1) + movie.backdrop_path;
+            limelightMovie.setBackdropPath(completeBackdropPath);
+        }
 
         return limelightMovie;
     }
@@ -117,7 +121,7 @@ public class Utils {
     public static byte[] convertImageViewToByteArray(ImageView imageView) {
         Bitmap imageBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 }
