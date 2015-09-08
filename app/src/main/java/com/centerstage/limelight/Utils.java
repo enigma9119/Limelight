@@ -109,10 +109,8 @@ public class Utils {
             limelightMovie.setPosterPath(completePosterPath);
         }
 
-        if (movie.backdrop_path != null && !movie.backdrop_path.isEmpty()) {
-            String completeBackdropPath = config.images.base_url + config.images.backdrop_sizes.get(1) + movie.backdrop_path;
-            limelightMovie.setBackdropPath(completeBackdropPath);
-        }
+        String completeBackdropPath = config.images.base_url + config.images.backdrop_sizes.get(1) + movie.backdrop_path;
+        limelightMovie.setBackdropPath(completeBackdropPath);
 
         return limelightMovie;
     }

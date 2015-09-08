@@ -28,9 +28,9 @@ public class HomeTabsFragment extends Fragment {
     @InjectView(R.id.viewpager)
     ViewPager mViewPager;
 
-    onViewPagerCreatedListener mCallback;
+    OnViewPagerCreatedListener mCallback;
 
-    public interface onViewPagerCreatedListener {
+    public interface OnViewPagerCreatedListener {
         void onViewPagerCreated(ViewPager viewPager);
     }
 
@@ -44,7 +44,7 @@ public class HomeTabsFragment extends Fragment {
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            mCallback = (onViewPagerCreatedListener) activity;
+            mCallback = (OnViewPagerCreatedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnMovieDataFetchedListener");

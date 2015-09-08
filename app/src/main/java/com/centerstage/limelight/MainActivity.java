@@ -36,7 +36,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class MainActivity extends AppCompatActivity implements HomeTabsFragment.onViewPagerCreatedListener,
+public class MainActivity extends AppCompatActivity implements HomeTabsFragment.OnViewPagerCreatedListener,
         MovieFragment.OnMovieDataFetchedListener, MovieAdapter.OnItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
