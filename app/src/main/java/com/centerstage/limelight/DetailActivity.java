@@ -132,8 +132,9 @@ public class DetailActivity extends AppCompatActivity implements MovieFragment.O
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (movie.getTrailer() != null) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(movie.getTrailer()));
+                if (!movie.getVideos().isEmpty()) {
+                    String url = movie.getVideos().get(0).getUrl();
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     startActivity(intent);
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.no_trailer_found, Toast.LENGTH_SHORT).show();

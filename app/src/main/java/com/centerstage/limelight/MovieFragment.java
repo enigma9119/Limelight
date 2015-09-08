@@ -22,12 +22,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.centerstage.limelight.data.LimelightMovie;
 import com.centerstage.limelight.data.MovieProvider;
 import com.centerstage.limelight.data.ParcelableReview;
+import com.centerstage.limelight.data.ParcelableVideo;
 import com.centerstage.limelight.loaders.ConfigurationLoader;
 import com.centerstage.limelight.loaders.MovieLoader;
 import com.centerstage.limelight.loaders.ReviewsLoader;
@@ -105,6 +108,11 @@ public class MovieFragment extends Fragment {
     @InjectView(R.id.budget)
     TextView mBudget;
 
+    @InjectView(R.id.videos_cardview)
+    CardView mVideosCardView;
+    @InjectView(R.id.videos_gallery)
+    LinearLayout mVideosGalleryLayout;
+
     @InjectView(R.id.reviews_cardview)
     CardView mReviewsCardView;
     @InjectView(R.id.author_text)
@@ -121,7 +129,7 @@ public class MovieFragment extends Fragment {
     private Configuration mConfiguration;
     LimelightMovie mLimelightMovie;
     Movie mMovie;
-    Videos mVideos;
+    ArrayList<ParcelableVideo> mVideos;
     ArrayList<ParcelableReview> mReviews;
 
     Uri mMovieUri;
@@ -147,7 +155,11 @@ public class MovieFragment extends Fragment {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mLimelightMovie.getTrailer());
+
+        if (!mLimelightMovie.getVideos().isEmpty()) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mLimelightMovie.getVideos().get(0).getUrl());
+        }
+
         return shareIntent;
     }
 
@@ -223,6 +235,7 @@ public class MovieFragment extends Fragment {
 
     private void setupForDatabaseMovie() {
         buildMovieUI();
+        buildVideosUI();
         buildReviewUI();
 
         // These movies are already in the database, so initialize with favorites drawable filled in
@@ -388,6 +401,33 @@ public class MovieFragment extends Fragment {
     }
 
     // Initialize the parcelable Reviews object
+    void initParcelableVideos(Videos videos) {
+        mVideos = new ArrayList<>();
+
+        if (videos != null && videos.results != null && !videos.results.isEmpty()) {
+
+            for (int i = 0; i < videos.results.size(); i++) {
+                ParcelableVideo parcelableVideo = new ParcelableVideo();
+                Videos.Video video = videos.results.get(i);
+
+                parcelableVideo.setName(video.name);
+
+                String youtubeBaseUrl = "https://www.youtube.com/watch?v=";
+                String completeUrl = youtubeBaseUrl + video.key;
+                parcelableVideo.setUrl(completeUrl);
+
+                parcelableVideo.setType(video.type);
+                parcelableVideo.setSite(video.site);
+                parcelableVideo.setId(video.id);
+                parcelableVideo.setIso_639_1(video.iso_639_1);
+                parcelableVideo.setSize(video.size);
+
+                mVideos.add(parcelableVideo);
+            }
+        }
+    }
+
+    // Initialize the parcelable Videos object
     void initParcelableReviews(ReviewResultsPage reviewsPage) {
         mReviews = new ArrayList<>();
 
@@ -407,6 +447,31 @@ public class MovieFragment extends Fragment {
         }
     }
 
+    // Build the UI for the videos on the detail screen
+    void buildVideosUI() {
+        if (!mLimelightMovie.getVideos().isEmpty()) {
+
+            for (final ParcelableVideo video : mLimelightMovie.getVideos()) {
+                // Create a Button for each video
+                Button view = new Button(getActivity());
+                view.setText(video.getName());
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(video.getUrl()));
+                        startActivity(intent);
+                    }
+                });
+
+                // Add Button to the LinearLayout
+                mVideosGalleryLayout.addView(view);
+            }
+        } else {
+            // If there are no videos available, then remove the videos CardView
+            mVideosCardView.setVisibility(View.GONE);
+        }
+    }
+
     // Build the UI for the single review on the detail screen
     void buildReviewUI() {
         if (!mLimelightMovie.getReviews().isEmpty()) {
@@ -423,9 +488,11 @@ public class MovieFragment extends Fragment {
 
     void onLoadFinishedCommonSetup() {
         if (mMovie != null && mConfiguration != null && mVideos != null && mReviews != null) {
-            mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration, mVideos);
+            mLimelightMovie = Utils.convertMovieToLimelightMovie(mMovie, mConfiguration);
+            mLimelightMovie.setVideos(mVideos);
             mLimelightMovie.setReviews(mReviews);
             buildMovieUI();
+            buildVideosUI();
             buildReviewUI();
 
             // Attach an intent to the ShareActionProvider
@@ -492,7 +559,7 @@ public class MovieFragment extends Fragment {
 
         @Override
         public void onLoadFinished(Loader<Videos> loader, Videos data) {
-            mVideos = data;
+            initParcelableVideos(data);
             onLoadFinishedCommonSetup();
         }
 

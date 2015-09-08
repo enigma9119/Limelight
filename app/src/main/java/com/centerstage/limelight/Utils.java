@@ -18,7 +18,6 @@ import com.uwetrottmann.tmdb.entities.Configuration;
 import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.SpokenLanguage;
-import com.uwetrottmann.tmdb.entities.Videos;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class Utils {
     }
 
     // Convert from movie object to parcelable Limelight movie object
-    public static LimelightMovie convertMovieToLimelightMovie(Movie movie, Configuration config, Videos videos) {
+    public static LimelightMovie convertMovieToLimelightMovie(Movie movie, Configuration config) {
         LimelightMovie limelightMovie = new LimelightMovie();
         limelightMovie.setMovieId(movie.id);
         limelightMovie.setMovieTitle(movie.original_title);
@@ -110,12 +109,6 @@ public class Utils {
 
         String completeBackdropPath = config.images.base_url + config.images.backdrop_sizes.get(1) + movie.backdrop_path;
         limelightMovie.setBackdropPath(completeBackdropPath);
-
-        if (videos.results != null && !videos.results.isEmpty()) {
-            final String youtubeBaseUrl = "https://www.youtube.com/watch?v=";
-            String trailer = youtubeBaseUrl + videos.results.get(0).key;
-            limelightMovie.setTrailer(trailer);
-        }
 
         return limelightMovie;
     }

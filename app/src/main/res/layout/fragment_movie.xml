@@ -316,6 +316,47 @@
         </android.support.v7.widget.CardView>
 
 
+        <!-- Videos card -->
+        <android.support.v7.widget.CardView
+            android:id="@+id/videos_cardview"
+            card_view:cardCornerRadius="2dp"
+            card_view:contentPadding="20dp"
+            android:layout_marginTop="@dimen/cardview_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/videos_heading"
+                    android:text="@string/videos_text"
+                    style="@style/CardTitleText" />
+
+                <HorizontalScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/videos_gallery"
+                        android:orientation="horizontal"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+
         <!-- Reviews card -->
         <android.support.v7.widget.CardView
             android:id="@+id/reviews_cardview"
