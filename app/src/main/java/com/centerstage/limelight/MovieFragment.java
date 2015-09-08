@@ -455,6 +455,7 @@ public class MovieFragment extends Fragment {
                 // Create a Button for each video
                 Button view = new Button(getActivity());
                 view.setText(video.getName());
+                view.setTextColor(getResources().getColor(android.R.color.white));
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
