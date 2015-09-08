@@ -91,13 +91,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                     + " must implement OnMovieDataFetchedListener");
         }
 
-        BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, limelightMovie.getMovieTitle(),
-                PLACEHOLDER_TEXT_SIZE, Color.BLACK,
-                holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
+        // The runnable posted to the ImageView is executed after the ImageView has been drawn.
+        // Hence, this means the measured widths and heights of the ImageView will have the correct values.
+        holder.mMoviePoster.post(new Runnable() {
+            @Override
+            public void run() {
+                final BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, limelightMovie.getMovieTitle(),
+                        PLACEHOLDER_TEXT_SIZE, Color.BLACK,
+                        holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
 
-        Picasso.with(context).load(limelightMovie.getPosterPath())
-                .placeholder(placeholderText)
-                .into(holder.mMoviePoster);
+                Picasso.with(context).load(limelightMovie.getPosterPath())
+                        .placeholder(placeholderText)
+                        .into(holder.mMoviePoster);
+            }
+        });
 
         holder.mMoviePoster.setOnClickListener(new View.OnClickListener() {
             @Override
