@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.centerstage.limelight.data.LimelightMovie;
@@ -93,11 +94,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                     + " must implement OnMovieDataFetchedListener");
         }
 
-        // The runnable posted to the ImageView is executed after the ImageView has been drawn.
-        // Hence, this means the measured widths and heights of the ImageView will have the correct values.
-        holder.mMoviePoster.post(new Runnable() {
+        // The measured widths and heights of the ImageView are zero until they are sized. Using the
+        // PreDrawListener, the measured widths and heights will have actual values instead of zero.
+        holder.mMoviePoster.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public void run() {
+            public boolean onPreDraw() {
+                holder.mMoviePoster.getViewTreeObserver().removeOnPreDrawListener(this);
+
                 final BitmapDrawable placeholderText = Utils.textAsBitmapDrawable(context, limelightMovie.getMovieTitle(),
                         PLACEHOLDER_TEXT_SIZE, Color.BLACK,
                         holder.mMoviePoster.getMeasuredWidth(), holder.mMoviePoster.getMeasuredHeight());
@@ -105,16 +108,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 Picasso.with(context).load(limelightMovie.getPosterPath())
                         .placeholder(placeholderText)
                         .into(holder.mMoviePoster);
+
+                return true;
             }
         });
 
         holder.mMoviePoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Only handle the click if movie poster has finished loading
-                if (holder.mMoviePoster.getDrawable() != null) {
-                    mCallback.onItemClick(mLimelightMovies, limelightMovie, holder.mMoviePoster);
-                }
+                mCallback.onItemClick(mLimelightMovies, limelightMovie, holder.mMoviePoster);
             }
         });
     }

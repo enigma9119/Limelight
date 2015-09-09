@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements HomeTabsFragment.
                 intent.putExtra(Intent.EXTRA_TEXT, item.getMovieId());
             }
 
-            if (item.getPosterPath() != null) {
+            if (item.getPosterPath() != null && poster.getDrawable() != null) {
                 // Convert ImageView (movie poster) to byte array
                 byte[] byteArray = Utils.convertImageViewToByteArray(poster);
 
